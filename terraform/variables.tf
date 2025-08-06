@@ -58,6 +58,7 @@ variable "cpu_desired_instance" {
 }
 
 variable "cpu_capacity_type" {
+  type        = string
   default     = "SPOT"
   description = "MLFlow EC2 Capacity type"
 }
@@ -86,6 +87,7 @@ variable "mlflow_desired_instance" {
 }
 
 variable "mlflow_capacity_type" {
+  type        = string
   default     = "ON_DEMAND"
   description = "MLFlow EC2 Capacity type"
 }
@@ -114,6 +116,7 @@ variable "knative_desired_instance" {
 }
 
 variable "knative_capacity_type" {
+  type        = string
   default     = "ON_DEMAND"
   description = "Knative EC2 Capacity type"
 }
