@@ -9,7 +9,6 @@ on:
         type: choice
         options:
           - prod
-  pull_request: null
 
 defaults:
   run:
