@@ -1,0 +1,18 @@
+# Kubernetes API server endpoint (for k3s, typically https://localhost:6443)
+kube_host = "https://localhost:6443"
+
+# Kubernetes auth token (for k3s, can be found in /var/lib/rancher/k3s/server/token)
+# kube_token = "YOUR_K3S_TOKEN"
+
+# Base64 encoded certificate for the Kubernetes cluster (for k3s, can be found in /var/lib/rancher/k3s/server/tls/client-ca.crt)
+# kube_ca_cert = "YOUR_BASE64_ENCODED_CA_CERT"
+
+# Optional: KServe Helm chart version
+kserve_chart_version = "0.11.2"
+
+# Optional: KServe version
+kserve_version = "v0.15.2"
+
+# Optional: Name of the TLS certificate secret for the HTTPS listener
+# tls_certificate_name = "your-tls-certificate-name"
+# If left empty, the HTTPS listener will be disabled
