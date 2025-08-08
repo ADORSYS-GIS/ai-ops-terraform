@@ -1,32 +1,27 @@
 variable "kube_host" {
-  description = "Kubernetes API server endpoint (for k3s, typically https://localhost:6443)"
+  description = "Kubernetes API server endpoint"
   type        = string
-  default     = "https://localhost:6443"
 }
 
 variable "kube_token" {
-  description = "Kubernetes auth token (for k3s, can be found in /var/lib/rancher/k3s/server/token)"
+  description = "Kubernetes auth token"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
 variable "kube_ca_cert" {
-  description = "Base64 encoded certificate for the Kubernetes cluster (for k3s, can be found in /var/lib/rancher/k3s/server/tls/client-ca.crt)"
+  description = "Kubernetes cluster CA certificate"
   type        = string
-  default     = ""
 }
 
 variable "kube_client_cert" {
-  description = "Base64 encoded client certificate for Kubernetes authentication"
+  description = "Kubernetes client certificate"
   type        = string
-  default     = ""
 }
 
 variable "kube_client_key" {
-  description = "Base64 encoded client key for Kubernetes authentication"
+  description = "Kubernetes client key"
   type        = string
-  default     = ""
 }
 
 variable "kserve_chart_version" {
@@ -41,8 +36,24 @@ variable "kserve_version" {
 }
 
 variable "tls_certificate_name" {
-  description = "Name of the TLS certificate secret for the HTTPS listener"
+  description = "Name of the TLS certificate secret"
   type        = string
-  default     = ""
 }
 
+variable "install_gateway_api" {
+  description = "Install Gateway API components"
+  type        = bool
+  default     = false
+}
+
+variable "install_cert_manager" {
+  description = "Install Cert Manager components"
+  type        = bool
+  default     = false
+}
+
+variable "install_knative" {
+  description = "Install Knative components"
+  type        = bool
+  default     = false
+}
