@@ -1,3 +1,9 @@
+variable "namespace" {
+  description = "The Kubernetes namespace to install KServe into."
+  type        = string
+  default     = "kserve"
+}
+
 variable "kube_host" {
   description = "Kubernetes API server endpoint (for k3s, typically https://localhost:6443)"
   type        = string
@@ -12,17 +18,17 @@ variable "kube_token" {
 }
 
 variable "kube_ca_cert" {
-  description = "Kubernetes cluster CA certificate"
+  description = "Base64 encoded certificate for the Kubernetes cluster"
   type        = string
 }
 
 variable "kube_client_cert" {
-  description = "Kubernetes client certificate"
+  description = "Base64 encoded client certificate for Kubernetes authentication"
   type        = string
 }
 
 variable "kube_client_key" {
-  description = "Kubernetes client key"
+  description = "Base64 encoded client key for Kubernetes authentication"
   type        = string
 }
 
@@ -40,6 +46,7 @@ variable "kserve_version" {
 variable "tls_certificate_name" {
   description = "Name of the TLS certificate secret"
   type        = string
+  default     = ""
 }
 
 variable "install_gateway_api" {

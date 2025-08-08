@@ -1,43 +1,32 @@
-terraform {kubectl apply -f 
-  required_version = ">= 1.9.8"
-
-  required_providers {
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = ">= 2.0"
-    }
-    helm = {
-      source  = "hashicorp/helm"
-      version = ">= 2.0"
-    }
-  }
-}
-
 resource "kubernetes_namespace" "kserve" {
   metadata {
-    name = "kserve"
+    name = var.namespace
   }
 }
 
-
-# 1. Install cert-manager
-resource "null_resource" "install_cert_manager" {
-  provisioner "local-exec" {
-    command = "https://github.com/cert-manager/cert-manager/releases/download/v1.18.2/cert-manager.yaml"
-  }
+resource "helm_release" "cert_manager" {
+  count            = var.install_cert_manager ? 1 : 0
+  name             = "cert-manager"
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
+  version          = "v1.10.0"
+  namespace        = "cert-manager"
+  create_namespace = true
+  wait             = true
 }
 
-# 2. Install Gateway API network controller
-resource "null_resource" "install_gateway_api" {
-  depends_on = [null_resource.install_cert_manager]
-  provisioner "local-exec" {
-    command = "kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml"
-  }
+resource "helm_release" "gateway_api" {
+  count      = var.install_gateway_api ? 1 : 0
+  name       = "gateway-api"
+  repository = "https://kubernetes-sigs.github.io/gateway-api"
+  chart      = "gateway-api"
+  version    = "v1.0.0"
+  namespace  = "gateway-api"
+  wait       = true
 }
 
-# 3. Create GatewayClass and Gateway in kserve namespace
 resource "kubernetes_manifest" "gatewayclass" {
-  depends_on = [null_resource.install_gateway_api]
+  depends_on = [helm_release.gateway_api]
   manifest = {
     apiVersion = "gateway.networking.k8s.io/v1"
     kind       = "GatewayClass"
@@ -57,7 +46,7 @@ resource "kubernetes_manifest" "gateway" {
     kind       = "Gateway"
     metadata = {
       name      = "kserve-ingress-gateway"
-      namespace = "kserve"
+      namespace = var.namespace
     }
     spec = {
       gatewayClassName = "envoy"
@@ -85,7 +74,7 @@ resource "helm_release" "kserve_crd" {
   repository       = "oci://ghcr.io/kserve"
   chart            = "charts/kserve-crd"
   version          = var.kserve_version
-  namespace        = kubernetes_namespace.kserve.metadata[0].name
+  namespace        = var.namespace
   create_namespace = false
 }
 
@@ -95,13 +84,10 @@ resource "helm_release" "kserve" {
   repository       = "oci://ghcr.io/kserve"
   chart            = "charts/kserve"
   version          = var.kserve_version
-  namespace        = kubernetes_namespace.kserve.metadata[0].name
+  namespace        = var.namespace
   create_namespace = false
 
   values = [
-    file("${path.module}/values/kserve-values.yaml")
+    templatefile("${path.module}/files/kserve-values.yaml.tpl", { namespace = var.namespace })
   ]
 }
-
-
-
