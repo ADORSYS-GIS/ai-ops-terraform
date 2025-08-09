@@ -11,3 +11,13 @@ terraform {
     }
   }
 }
+
+provider "helm" {
+  kubernetes {
+    host                   = var.kube_host
+    token                  = var.kube_token
+    client_certificate     = var.kube_client_cert
+    client_key             = var.kube_client_key
+    cluster_ca_certificate = var.kube_ca_cert
+  }
+}

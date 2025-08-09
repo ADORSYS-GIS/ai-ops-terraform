@@ -5,6 +5,10 @@ provider "kubernetes" {
 module "kserve" {
   source = "./tf-kserve"
 
+  providers = {
+    kubernetes = kubernetes
+  }
+
   kube_host              = var.kube_host
   kube_token             = var.kube_token
   kube_ca_cert           = var.kube_ca_cert
