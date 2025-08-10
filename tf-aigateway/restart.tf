@@ -1,4 +1,3 @@
-# --- 7. Restart Envoy Gateway deployment ---
 resource "null_resource" "restart_envoy_gateway" {
   provisioner "local-exec" {
     command = <<EOT

@@ -1,4 +1,3 @@
-# --- 2. Install AI Gateway (skip CRDs) ---
 resource "helm_release" "ai_gateway" {
   name             = "aieg"
   repository       = var.helm_repository

@@ -1,4 +1,3 @@
-# --- 3. Install Envoy Gateway ---
 resource "helm_release" "envoy_gateway" {
   name             = "eg"
   repository       = var.helm_repository
