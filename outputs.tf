@@ -1,10 +1,11 @@
-# ----------------------------
-# Outputs
-# ----------------------------
 output "envoy_gateway_release_name" {
-  value = helm_release.envoy_gateway.name
+  value = module.envoy_ai_gateway.envoy_gateway_release_name
 }
 
 output "ai_gateway_release_name" {
-  value = helm_release.ai_gateway.name
+  value = module.envoy_ai_gateway.ai_gateway_release_name
+}
+
+output "ai_gateway_crds_release_name" {
+  value = module.envoy_ai_gateway.ai_gateway_crds_release_name
 }
