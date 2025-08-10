@@ -11,8 +11,12 @@ terraform {
   }
 }
 
-module "envoy_ai_gateway" {
-  source = "./tf-aigateway"
-  
-  kubeconfig = var.kubeconfig
+provider "helm" {
+  kubernetes {
+    config_path = "~/.kube/config"
+  }
+}
+
+provider "kubernetes" {
+  config_path = "~/.kube/config"
 }
