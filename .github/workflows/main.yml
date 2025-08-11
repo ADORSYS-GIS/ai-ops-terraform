@@ -14,7 +14,7 @@ jobs:
         run: sudo snap install multipass
 
       - name: Launch Multipass VM
-        run: multipass launch lts --name ai-ml-ops --cpus 4 --mem 8G --disk 20G
+        run: multipass launch lts --name ai-ml-ops --cpus 4 --memory 8G --disk 20G
 
       - name: Install k3s
         run: |
