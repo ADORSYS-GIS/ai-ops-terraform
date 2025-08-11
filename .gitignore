@@ -1,7 +1,9 @@
 # Local .terraform directories
 .terraform/
 .terraform.lock.hcl
+yaml.yaml
 
+tf-aigateway/
 # .tfstate files
 *.tfstate
 *.tfstate.*
