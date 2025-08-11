@@ -20,7 +20,7 @@ jobs:
 
       - name: Set KUBE config
         run: |
-          bash -c "mkdir -p ~/.kube && sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sudo chown ubuntu:ubuntu ~/.kube/config && chmod 600 ~/.kube/config"
+          bash -c "mkdir -p ~/.kube && sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config && sudo chmod +r ~/.kube/config"
           bash -c 'echo "export KUBECONFIG=~/.kube/config" >> ~/.bashrc'
 
       - name: Install Terraform
