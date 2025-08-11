@@ -75,12 +75,9 @@ data "http" "rbac_yaml" {
 }
 
 
-
-
 # 5. Envoy Gateway configuration (config.yaml)
 resource "kubectl_manifest" "envoy_gateway_config" {
   yaml_body = data.http.config_yaml.body
-  #   depends_on = [kubectl_manifest.redis]
 }
 
 resource "kubectl_manifest" "redis" {
@@ -94,19 +91,6 @@ resource "kubectl_manifest" "redis" {
     kubectl_manifest.envoy_gateway_config
   ]
 }
-
-# resource "kubectl_manifest" "redis" {
-#   for_each  = toset(data.kubectl_path_documents.redis_docs.documents)
-#   yaml_body = each.value
-
-#   server_side_apply = true
-#   field_manager     = "terraform"
-
-#   depends_on = [
-#     helm_release.envoy_gateway,
-#     kubectl_manifest.envoy_gateway_config
-#   ]
-# }
 
 resource "kubectl_manifest" "envoy_gateway_rbac" {
   yaml_body = data.http.rbac_yaml.body
