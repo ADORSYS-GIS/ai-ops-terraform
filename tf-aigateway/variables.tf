@@ -1,53 +1,47 @@
-variable "helm_repository" {
-  description = "The Helm repository to use"
+variable "kube_config_path" {
   type        = string
-  default     = "oci://docker.io/envoyproxy"
+  description = "Path to the kubeconfig file"
+  default     = "~/.kube/config"
 }
 
-variable "crd_chart" {
-  description = "The CRD Helm chart name"
+variable "chart_version" {
   type        = string
-  default     = "ai-gateway-crds-helm"
-}
-
-variable "ai_gateway_chart" {
-  description = "The AI Gateway Helm chart name"
-  type        = string
-  default     = "ai-gateway-helm"
-}
-
-variable "envoy_gateway_chart" {
-  description = "The Envoy Gateway Helm chart name"
-  type        = string
-  default     = "gateway-helm"
-}
-
-variable "crd_version" {
-  description = "The version of the CRD chart"
-  type        = string
-  default     = "v0.0.0-latest"
-}
-
-variable "ai_gateway_version" {
-  description = "The version of the AI Gateway chart"
-  type        = string
-  default     = "v0.0.0-latest"
-}
-
-variable "envoy_gateway_version" {
-  description = "The version of the Envoy Gateway chart"
-  type        = string
+  description = "Version of the Helm charts"
   default     = "v0.0.0-latest"
 }
 
 variable "ai_gateway_namespace" {
-  description = "The namespace for AI Gateway"
   type        = string
+  description = "Namespace for AI Gateway components"
   default     = "envoy-ai-gateway-system"
 }
 
 variable "envoy_gateway_namespace" {
-  description = "The namespace for Envoy Gateway"
   type        = string
+  description = "Namespace for Envoy Gateway"
   default     = "envoy-gateway-system"
+}
+
+variable "redis_namespace" {
+  type        = string
+  description = "Namespace for Redis (note: this is referenced in YAML manifests; changing it may require updating the YAML content)"
+  default     = "redis-system"
+}
+
+variable "redis_yaml_url" {
+  type        = string
+  description = "URL for the Redis YAML manifest"
+  default     = "https://raw.githubusercontent.com/envoyproxy/ai-gateway/main/manifests/envoy-gateway-config/redis.yaml"
+}
+
+variable "config_yaml_url" {
+  type        = string
+  description = "URL for the Envoy Gateway config YAML"
+  default     = "https://raw.githubusercontent.com/envoyproxy/ai-gateway/main/manifests/envoy-gateway-config/config.yaml"
+}
+
+variable "rbac_yaml_url" {
+  type        = string
+  description = "URL for the Envoy Gateway RBAC YAML"
+  default     = "https://raw.githubusercontent.com/envoyproxy/ai-gateway/main/manifests/envoy-gateway-config/rbac.yaml"
 }
