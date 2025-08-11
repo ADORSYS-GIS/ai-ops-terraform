@@ -94,7 +94,37 @@ variable "mlflow_capacity_type" {
 
 variable "knative_ec2_instance_types" {
   description = "The EC2 instance type for the Knative server"
-  type = list(string)
+  type        = list(string)
+  default = [
+    # a10g
+    "g5.xlarge",
+    "g5.2xlarge",
+    "g5.4xlarge",
+    "g5.8xlarge",
+    "g5.12xlarge",
+    "g5.16xlarge",
+    "g5.24xlarge",
+
+    # l4
+    "g6.xlarge",
+    "g6.2xlarge",
+    "g6.4xlarge",
+    "g6.8xlarge",
+    "g6.12xlarge",
+    "g6.16xlarge",
+    "g6.24xlarge",
+    "g6.48xlarge",
+
+    # l40s
+    "g6e.xlarge",
+    "g6e.2xlarge",
+    "g6e.4xlarge",
+    "g6e.8xlarge",
+    "g6e.12xlarge",
+    "g6e.16xlarge",
+    "g6e.24xlarge",
+    "g6e.48xlarge",
+  ]
 }
 
 variable "knative_min_instance" {

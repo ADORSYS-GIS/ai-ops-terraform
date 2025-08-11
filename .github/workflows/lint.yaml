@@ -5,10 +5,6 @@ on:
     branches:
       - "*"
 
-defaults:
-  run:
-    working-directory: ./terraform
-
 jobs:
   tflint:
     runs-on: ubuntu-latest
@@ -36,8 +32,11 @@ jobs:
           # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Run TFLint
-        run: tflint -f compact
+      - name: Run TFLint with reviewdog
+        uses: reviewdog/action-tflint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review # Post comments as a PR review
 
   tfsec:
     name: tfsec
