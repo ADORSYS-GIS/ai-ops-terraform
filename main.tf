@@ -78,6 +78,9 @@ data "http" "rbac_yaml" {
 # 5. Envoy Gateway configuration (config.yaml)
 resource "kubectl_manifest" "envoy_gateway_config" {
   yaml_body = data.http.config_yaml.body
+  depends_on = [
+   helm_release.envoy_gateway,
+  ]
 }
 
 resource "kubectl_manifest" "redis" {
