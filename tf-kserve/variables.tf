@@ -18,17 +18,17 @@ variable "kube_token" {
 }
 
 variable "kube_ca_cert" {
-  description = "Base64 encoded certificate for the Kubernetes cluster"
+  description = "Kubernetes cluster CA certificate (raw PEM content)"
   type        = string
 }
 
 variable "kube_client_cert" {
-  description = "Base64 encoded client certificate for Kubernetes authentication"
+  description = "Kubernetes client certificate (raw PEM content)"
   type        = string
 }
 
 variable "kube_client_key" {
-  description = "Base64 encoded client key for Kubernetes authentication"
+  description = "Kubernetes client key (raw PEM content)"
   type        = string
 }
 
