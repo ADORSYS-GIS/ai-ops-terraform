@@ -43,5 +43,14 @@ jobs:
 
       - name: Check pods in redis-system namespace
         run: |
-          bash -c 'source ~/.bashrc ; kubectl get all -n redis-system'
-          bash -c 'source ~/.bashrc ; kubectl wait --for=condition=Ready pod -l app=redis -n redis-system --timeout=5m'
+          echo "AI Gateway Resources"
+          echo
+          source ~/.bashrc && kubectl get all -n envoy-ai-gateway-system
+          echo
+          echo "Envoy Gateway Resources"
+          echo
+          kubectl get all -n envoy-gateway-system
+          echo
+          echo "Redis Resources"
+          kubectl get all -n redis-system
+          kubectl wait --for=condition=Ready pod -l app=redis -n redis-system --timeout=5m
