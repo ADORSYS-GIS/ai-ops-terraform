@@ -39,7 +39,7 @@ jobs:
         run: bash -c 'source ~/.bashrc ; curl -s "https://raw.githubusercontent.com/kserve/kserve/release-0.15/hack/quick_install.sh" | bash'
 
       - name: Run Terraform init and apply
-        run:  bash -c 'source ~/.bashrc ; cd tf-aigateway; cd ${{ github.workspace }}; terraform init ; terraform apply -auto-approve'
+        run:  bash -c 'source ~/.bashrc ; cd ${{ github.workspace }}/tf-aigateway; terraform init ; terraform apply -auto-approve'
 
       - name: Check pods in redis-system namespace
         run: |
