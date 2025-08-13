@@ -5,10 +5,6 @@ provider "kubernetes" {
 module "kserve" {
   source = "./tf-kserve"
 
-  providers = {
-    kubernetes = kubernetes
-  }
-
   kube_host              = var.kube_host
   kube_token             = var.kube_token
   kube_ca_cert           = var.kube_ca_cert
@@ -20,4 +16,9 @@ module "kserve" {
   install_gateway_api    = var.install_gateway_api
   install_cert_manager   = var.install_cert_manager
   install_knative        = var.install_knative
+  
+  providers = {
+    kubernetes = kubernetes
+  }
+
 }
