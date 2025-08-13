@@ -1,80 +1,23 @@
-resource "aws_iam_user" "s3_user" {
-  name = "${local.s3_bucket_name}-user-${random_id.suffix.hex}"
-  tags = {
-    Name = "S3 User"
+# Create S3 buckets using the module
+module "s3_buckets" {
+  source = "./modules/s3-bucket"
+
+  for_each = { for k, v in var.s3_buckets : k => v if v.enabled }
+
+  bucket_name = "${local.name}-${each.key}"
+  bucket_config = {
+    versioning_enabled = each.value.versioning_enabled
+    encryption_type    = each.value.encryption_type
   }
-}
+  bucket_users = each.value.users
+  k8s_secrets  = each.value.k8s_secrets
 
-resource "aws_iam_access_key" "s3_user_access_key" {
-  user = aws_iam_user.s3_user.name
-}
-
-resource "random_id" "suffix" {
-  byte_length = 8 # Adjust length as needed
-}
-
-module "s3_bucket" {
-  source  = "terraform-aws-modules/s3-bucket/aws"
-  version = "~> 4.0"
-
-  force_destroy     = true
-  block_public_acls = true
-
-  bucket = local.s3_bucket_name
-
-  attach_policy = true
-
-  cors_rule = [
+  tags = merge(
+    local.tags,
     {
-      allowed_methods = ["PUT", "POST"]
-      allowed_origins = ["https://${var.zone_name}"]
-      allowed_headers = ["*"]
-      expose_headers = ["ETag"]
-      max_age_seconds = 3000
-    },
-  ]
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Principal = {
-          AWS = aws_iam_user.s3_user.arn
-        },
-        Action = [
-          "s3:*",
-        ],
-        Resource = [
-          "arn:aws:s3:::${local.s3_bucket_name}",
-          "arn:aws:s3:::${local.s3_bucket_name}/*"
-        ]
-      }
-    ]
-  })
-  
-  versioning = {
-    enabled = true
-  }
-
-  server_side_encryption_configuration = {
-    rule = {
-      apply_server_side_encryption_by_default = {
-        sse_algorithm     = "aws:kms"
-      }
+      Name        = "${local.name}-${each.key}"
+      Environment = var.environment
+      Purpose     = each.key
     }
-  }
-
-  logging = {
-    target_bucket = module.s3_bucket.s3_bucket_id
-    target_prefix = "log/"
-  }
-  
-  tags = local.tags
-}
-
-locals {
-  s3_bucket_name       = "${local.name}-${var.environment}-web"
-  s3_access_key_id     = aws_iam_access_key.s3_user_access_key.id
-  s3_secret_access_key = aws_iam_access_key.s3_user_access_key.secret
+  )
 }
