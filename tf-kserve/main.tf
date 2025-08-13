@@ -1,91 +1,161 @@
-resource "kubernetes_namespace" "kserve" {
-  metadata {
-    name = var.namespace
+module "kserve_namespace" {
+  source = "terraform-module/release/helm"
+  version = "2.9.1"
+
+  app = {
+    name = "kserve-namespace"
+    chart = "raw"
+    version = "0.2.5"
+    repository = "https://charts.itscontained.io"
   }
+  namespace = var.namespace
+  values = [
+    yamlencode({
+      apiVersion = "v1"
+      kind = "Namespace"
+      metadata = {
+        name = var.namespace
+      }
+    })
+  ]
 }
 
-resource "helm_release" "cert_manager" {
-  count            = var.install_cert_manager ? 1 : 0
-  name             = "cert-manager"
-  repository       = "https://charts.jetstack.io"
-  chart            = "cert-manager"
-  version          = "v1.10.0"
-  namespace        = "cert-manager"
+module "cert_manager" {
+  source = "terraform-module/release/helm"
+  version = "2.9.1"
+
+  app = {
+    name = "cert-manager"
+    chart = "cert-manager"
+    version = "v1.10.0"
+    repository = "https://charts.jetstack.io"
+  }
+  namespace = "cert-manager"
   create_namespace = true
-  wait             = true
+
+  depends_on = [
+    module.gateway_api
+  ]
 }
 
-resource "helm_release" "gateway_api" {
-  count      = var.install_gateway_api ? 1 : 0
-  name       = "gateway-api"
-  repository = "https://kubernetes-sigs.github.io/gateway-api"
-  chart      = "gateway-api"
-  version    = "v1.0.0"
-  namespace  = "gateway-api"
-  wait       = true
-}
+module "gateway_api" {
+  source = "terraform-module/release/helm"
+  version = "2.9.1"
 
-resource "kubernetes_manifest" "gatewayclass" {
-  depends_on = [helm_release.gateway_api]
-  manifest = {
-    apiVersion = "gateway.networking.k8s.io/v1"
-    kind       = "GatewayClass"
-    metadata = {
-      name = "envoy"
-    }
-    spec = {
-      controllerName = "gateway.envoyproxy.io/gatewayclass-controller"
-    }
+  app = {
+    name = "gateway-api"
+    chart = "gateway-api"
+    version = "v1.0.0"
+    repository = "https://kubernetes-sigs.github.io/gateway-api"
   }
+  namespace = "gateway-api"
+  create_namespace = true
 }
 
-resource "kubernetes_manifest" "gateway" {
-  depends_on = [kubernetes_manifest.gatewayclass]
-  manifest = {
-    apiVersion = "gateway.networking.k8s.io/v1"
-    kind       = "Gateway"
-    metadata = {
-      name      = "kserve-ingress-gateway"
-      namespace = var.namespace
-    }
-    spec = {
-      gatewayClassName = "envoy"
-      listeners = concat([
-        {
-          name          = "http"
-          protocol      = "HTTP"
-          port          = 80
-          allowedRoutes = { namespaces = { from = "All" } }
-        }
+module "gatewayclass" {
+  source = "terraform-module/release/helm"
+  version = "2.9.1"
+
+  app = {
+    name = "gatewayclass"
+    chart = "raw"
+    version = "0.2.5"
+    repository = "https://charts.itscontained.io"
+  }
+  namespace = "gateway-api"
+  values = [
+    yamlencode({
+      apiVersion = "gateway.networking.k8s.io/v1"
+      kind = "GatewayClass"
+      metadata = {
+        name = "envoy"
+      }
+      spec = {
+        controllerName = "gateway.envoyproxy.io/gatewayclass-controller"
+      }
+    })
+  ]
+
+  depends_on = [
+    module.gateway_api
+  ]
+}
+
+module "gateway" {
+  source = "terraform-module/release/helm"
+  version = "2.9.1"
+
+  app = {
+    name = "gateway"
+    chart = "raw"
+    version = "0.2.5"
+    repository = "https://charts.itscontained.io"
+  }
+  namespace = var.namespace
+  values = [
+    yamlencode({
+      apiVersion = "gateway.networking.k8s.io/v1"
+      kind = "Gateway"
+      metadata = {
+        name = "kserve-ingress-gateway"
+        namespace = var.namespace
+      }
+      spec = {
+        gatewayClassName = "envoy"
+        listeners = concat([
+          {
+            name = "http"
+            protocol = "HTTP"
+            port = 80
+            allowedRoutes = { namespaces = { from = "All" } }
+          },
         ], var.tls_certificate_name != "" ? [{
-          name     = "https"
-          protocol = "HTTPS"
-          port     = 443
-          tls      = { mode = "Terminate", certificateRefs = [{ kind = "Secret", name = var.tls_certificate_name }] }
-      }] : [])
-    }
+            name = "https"
+            protocol = "HTTPS"
+            port = 443
+            tls = { mode = "Terminate", certificateRefs = [{ kind = "Secret", name = var.tls_certificate_name }] }
+          }] : [])
+        }
+      }
+    })
+  ]
+}
+
+
+module "kserve_crd" {
+  source = "terraform-module/release/helm"
+  version = "2.9.1"
+
+  app = {
+    name = "kserve-crd"
+    chart = "charts/kserve-crd"
+    version = var.kserve_version
+    repository = "oci://ghcr.io/kserve"
   }
+  namespace = var.namespace
+  create_namespace = false
+
+  depends_on = [
+    module.gateway
+  ]
 }
 
+module "kserve" {
+  source = "terraform-module/release/helm"
+  version = "2.9.1"
 
-resource "helm_release" "kserve_crd" {
-  depends_on       = [kubernetes_manifest.gateway]
-  name             = "kserve-crd"
-  repository       = "oci://ghcr.io/kserve"
-  chart            = "charts/kserve-crd"
-  version          = var.kserve_version
-  namespace        = var.namespace
+  app = {
+    name = "kserve"
+    chart = "charts/kserve"
+    version = var.kserve_version
+    repository = "oci://ghcr.io/kserve"
+  }
+  namespace = var.namespace
   create_namespace = false
-}
 
-resource "helm_release" "kserve" {
-  depends_on       = [helm_release.kserve_crd]
-  name             = "kserve"
-  repository       = "oci://ghcr.io/kserve"
-  chart            = "charts/kserve"
-  version          = var.kserve_version
-  namespace        = var.namespace
-  create_namespace = false
+  depends_on = [
+    module.kserve_crd
+  ]
 
   values = [
     templatefile("${path.module}/files/kserve-values.yaml.tpl", { namespace = var.namespace })
