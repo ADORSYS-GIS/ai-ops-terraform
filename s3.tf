@@ -10,6 +10,7 @@ module "s3_buckets" {
     encryption_type    = each.value.encryption_type
   }
   bucket_users = each.value.users
+  k8s_secrets  = each.value.k8s_secrets
 
   tags = merge(
     local.tags,

@@ -234,7 +234,7 @@ variable "fireworks_key" {
 }
 
 variable "s3_buckets" {
-  description = "Map of S3 buckets to create with their configurations and users"
+  description = "Map of S3 buckets to create with their configurations, users, and K8s secrets"
   type = map(object({
     enabled            = optional(bool, true)
     versioning_enabled = optional(bool, false)
@@ -242,6 +242,13 @@ variable "s3_buckets" {
     users = map(object({
       permissions = list(string) # ["read", "write", "delete", "list"]
     }))
+    k8s_secrets = optional(map(object({
+      namespace   = string
+      secret_name = string
+      user_key    = string                    # Which user's credentials to use
+      extra_data  = optional(map(string), {}) # Additional secret data
+    })), {})
   }))
   default = {}
 }
+

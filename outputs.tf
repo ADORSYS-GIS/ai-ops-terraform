@@ -3,13 +3,15 @@ output "argocd_server_url" {
   sensitive = false
 }
 
+# Output all bucket information as a nested dictionary
 output "s3_buckets" {
-  description = "Information about created S3 buckets and their users"
+  description = "Information about created S3 buckets, users, and Kubernetes secrets"
   value = {
     for bucket_name, bucket_module in module.s3_buckets : bucket_name => {
-      bucket_name = bucket_module.bucket_name
-      bucket_arn  = bucket_module.bucket_arn
-      users       = bucket_module.users
+      bucket_name        = bucket_module.bucket_name
+      bucket_arn         = bucket_module.bucket_arn
+      users              = bucket_module.users
+      kubernetes_secrets = bucket_module.kubernetes_secrets
     }
   }
 }

@@ -31,3 +31,14 @@ output "user_credentials" {
   }
   sensitive = true
 }
+
+output "kubernetes_secrets" {
+  description = "Information about created Kubernetes secrets"
+  value = {
+    for k, v in kubernetes_secret.bucket_secrets : k => {
+      secret_name = v.metadata[0].name
+      namespace   = v.metadata[0].namespace
+      user_key    = var.k8s_secrets[k].user_key
+    }
+  }
+}

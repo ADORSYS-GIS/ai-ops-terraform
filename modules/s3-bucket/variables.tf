@@ -20,6 +20,17 @@ variable "bucket_users" {
   default = {}
 }
 
+variable "k8s_secrets" {
+  description = "Map of Kubernetes secrets to create for bucket users"
+  type = map(object({
+    namespace   = string
+    secret_name = string
+    user_key    = string                    # Which user's credentials to use
+    extra_data  = optional(map(string), {}) # Additional secret data
+  }))
+  default = {}
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)

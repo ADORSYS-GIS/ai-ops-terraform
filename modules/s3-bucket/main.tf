@@ -1,3 +1,4 @@
+# S3 Bucket
 resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
   tags   = var.tags
@@ -120,4 +121,25 @@ resource "aws_iam_user_policy_attachment" "bucket_user_policies" {
 
   user       = aws_iam_user.bucket_users[each.key].name
   policy_arn = aws_iam_policy.bucket_policies[each.key].arn
+}
+
+# Kubernetes Secrets for EKS injection
+resource "kubernetes_secret" "bucket_secrets" {
+  for_each = var.k8s_secrets
+
+  metadata {
+    name      = each.value.secret_name
+    namespace = each.value.namespace
+  }
+
+  data = merge(
+    {
+      S3_BUCKET_NAME       = aws_s3_bucket.bucket.bucket
+      S3_ACCESS_KEY_ID     = aws_iam_access_key.bucket_user_keys[each.value.user_key].id
+      S3_SECRET_ACCESS_KEY = aws_iam_access_key.bucket_user_keys[each.value.user_key].secret
+    },
+    each.value.extra_data
+  )
+
+  type = "Opaque"
 }
