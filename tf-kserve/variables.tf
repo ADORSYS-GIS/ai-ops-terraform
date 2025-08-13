@@ -5,13 +5,12 @@ variable "namespace" {
 }
 
 variable "kube_host" {
-  description = "Kubernetes API server endpoint (for k3s, typically https://localhost:6443)"
+  description = "Kubernetes API server endpoint"
   type        = string
-  default     = "https://localhost:6443"
 }
 
 variable "kube_token" {
-  description = "Kubernetes auth token (for k3s, can be found in /var/lib/rancher/k3s/server/token)"
+  description = "Kubernetes auth token"
   type        = string
   sensitive   = true
   default     = ""
