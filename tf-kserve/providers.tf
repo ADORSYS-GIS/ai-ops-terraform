@@ -3,7 +3,7 @@ terraform {
   required_providers {
     helm = {
       source  = "hashicorp/helm"
-      version = "2.6.0"
+      version = ">= 2.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -13,7 +13,7 @@ terraform {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = var.kube_host
     token                  = var.kube_token
     client_certificate     = var.kube_client_cert
