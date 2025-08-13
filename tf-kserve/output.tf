@@ -1,3 +1,3 @@
 output "kserve_namespace" {
-  value = kubernetes_namespace.kserve.metadata[0].name
+  value = module.kserve_namespace.namespace
 }
