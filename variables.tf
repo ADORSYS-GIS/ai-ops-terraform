@@ -24,8 +24,8 @@ variable "vpc_cidr" {
 
 variable "azs" {
   description = "Availability Zones for the VPC"
-  type = list(string)
-  default = ["eu-west-1a", "eu-west-1b"]
+  type        = list(string)
+  default     = ["eu-west-1a", "eu-west-1b"]
 }
 
 variable "environment" {
@@ -36,7 +36,7 @@ variable "environment" {
 
 variable "cpu_ec2_instance_types" {
   description = "The EC2 instance type for the CPU server"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "cpu_min_instance" {
@@ -65,7 +65,7 @@ variable "cpu_capacity_type" {
 
 variable "mlflow_ec2_instance_types" {
   description = "The EC2 instance type for the MLFlow server"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "mlflow_min_instance" {
@@ -231,4 +231,17 @@ variable "fireworks_key" {
   type        = string
   sensitive   = true
   description = "Firework Key"
+}
+
+variable "s3_buckets" {
+  description = "Map of S3 buckets to create with their configurations and users"
+  type = map(object({
+    enabled            = optional(bool, true)
+    versioning_enabled = optional(bool, false)
+    encryption_type    = optional(string, "AES256")
+    users = map(object({
+      permissions = list(string) # ["read", "write", "delete", "list"]
+    }))
+  }))
+  default = {}
 }
