@@ -21,10 +21,6 @@ terraform {
   }
 }
 
-provider "kubernetes" {
-  config_path = var.kube_config_path
-}
-
 module "kserve" {
   source = "./tf-kserve"
 
