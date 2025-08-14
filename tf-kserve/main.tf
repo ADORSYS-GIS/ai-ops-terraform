@@ -1,14 +1,12 @@
 module "kserve_namespace" {
-  source  = "terraform-module/release/helm"
-  version = "2.9.1"
-  
+  source  = "cloudposse/helm-release/aws"
+  version = "0.10.1"
+
   repository = "https://charts.itscontained.io"
-  app = {
-    name    = "kserve-namespace",
-    chart   = "raw",
-    version = "0.2.5"
-  }
-  namespace = var.namespace
+  chart      = "raw"
+  name       = "kserve-namespace"
+  namespace  = var.namespace
+  chart_version = "0.2.5"
   values = [
     yamlencode({
       apiVersion = "v1",
@@ -21,16 +19,14 @@ module "kserve_namespace" {
 }
 
 module "cert_manager" {
-  source  = "terraform-module/release/helm"
-  version = "2.9.1"
+  source  = "cloudposse/helm-release/aws"
+  version = "0.10.1"
 
   repository = "https://charts.jetstack.io"
-  app = {
-    name    = "cert-manager",
-    chart   = "cert-manager",
-    version = "v1.10.0"
-  }
-  namespace = "cert-manager"
+  chart      = "cert-manager"
+  name       = "cert-manager"
+  namespace  = "cert-manager"
+  chart_version    = "v1.10.0"
 
   depends_on = [
     module.gateway_api
@@ -38,30 +34,25 @@ module "cert_manager" {
 }
 
 module "gateway_api" {
-  source  = "terraform-module/release/helm"
-  version = "2.9.1"
+  source  = "cloudposse/helm-release/aws"
+  version = "0.10.1"
 
   repository = "https://kubernetes-sigs.github.io/gateway-api"
-  app = {
-    name    = "gateway-api",
-    chart   = "gateway-api",
-    version = "v1.0.0"
-  }
-  namespace = "gateway-api"
+  chart      = "gateway-api"
+  name       = "gateway-api"
+  namespace  = "gateway-api"
+  chart_version    = "v1.0.0"
 }
 
 module "gatewayclass" {
-  source  = "terraform-module/release/helm"
-  version = "2.9.1"
+  source  = "cloudposse/helm-release/aws"
+  version = "0.10.1"
   repository = "https://charts.itscontained.io"
 
-  app = {
-    name       = "gatewayclass",
-    chart      = "raw",
-    version    = "0.2.5",
-    repository = "https://charts.itscontained.io"
-  }
-  namespace = "gateway-api"
+  chart      = "raw"
+  name       = "gatewayclass"
+  namespace  = "gateway-api"
+  chart_version    = "0.2.5"
   values = [
     yamlencode({
       apiVersion = "gateway.networking.k8s.io/v1",
@@ -81,17 +72,14 @@ module "gatewayclass" {
 }
 
 module "gateway" {
-  source  = "terraform-module/release/helm"
-  version = "2.9.1"
+  source  = "cloudposse/helm-release/aws"
+  version = "0.10.1"
 
   repository = "https://charts.itscontained.io"
-  app = {
-    name    = "gateway",
-    chart   = "raw",
-    version = "0.2.5"
-  }
-
-  namespace = var.namespace
+  chart      = "raw"
+  name       = "gateway"
+  namespace  = var.namespace
+  chart_version    = "0.2.5"
 
   values = [
     yamlencode({
@@ -137,16 +125,14 @@ module "gateway" {
 }
 
 module "kserve_crd" {
-  source  = "terraform-module/release/helm"
-  version = "2.9.1"
+  source  = "cloudposse/helm-release/aws"
+  version = "0.10.1"
 
   repository = "oci://ghcr.io/kserve"
-  app = {
-    name    = "kserve-crd",
-    chart   = "charts/kserve-crd",
-    version = var.kserve_version
-  }
-  namespace = var.namespace
+  chart      = "charts/kserve-crd"
+  name       = "kserve-crd"
+  namespace  = var.namespace
+  chart_version    = var.kserve_version
 
   depends_on = [
     module.gateway
@@ -154,16 +140,14 @@ module "kserve_crd" {
 }
 
 module "kserve" {
-  source  = "terraform-module/release/helm"
-  version = "2.9.1"
+  source  = "cloudposse/helm-release/aws"
+  version = "0.10.1"
 
   repository = "oci://ghcr.io/kserve"
-  app = {
-    name    = "kserve",
-    chart   = "charts/kserve",
-    version = var.kserve_version
-  }
-  namespace = var.namespace
+  chart      = "charts/kserve"
+  name       = "kserve"
+  namespace  = var.namespace
+  chart_version    = var.kserve_version
 
   depends_on = [
     module.kserve_crd
