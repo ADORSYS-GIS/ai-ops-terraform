@@ -2,9 +2,9 @@ name: AI Gateway Setup
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - ai-gateway-setup
+  # push:
+  #   branches:
+  #     - ai-gateway-setup
 
 jobs:
   setup:
