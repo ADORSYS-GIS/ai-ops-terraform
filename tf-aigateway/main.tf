@@ -2,11 +2,11 @@ terraform {
   required_providers {
     helm = {
       source  = "hashicorp/helm"
-      version = "2.12.1"
+      version = ">= 3.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.31.0"
+      version = ">= 2.31.0"
     }
     kubectl = {
       source  = "alekc/kubectl"
@@ -15,137 +15,151 @@ terraform {
   }
 }
 
+provider "kubernetes" {
+  host                    = var.kube_host
+  cluster_ca_certificate  = base64decode(var.kube_cluster_ca_certificate)
+  client_certificate      = base64decode(var.kube_client_certificate)
+  client_key              = base64decode(var.kube_client_key)
+  token                   = var.kube_token
+}
+
 provider "helm" {
-  kubernetes {
-    config_path = var.kube_config_path
+
+  kubernetes = {
+  host                   = var.kube_host
+  cluster_ca_certificate = base64decode(var.kube_cluster_ca_certificate)
+  client_certificate     = base64decode(var.kube_client_certificate)
+  client_key             = base64decode(var.kube_client_key)
+  token                  = var.kube_token
   }
 }
 
-provider "kubernetes" {
-  config_path = var.kube_config_path
-}
+# module "ai_gateway_crds" {
+#   source  = "terraform-module/release/helm"
+#   version = ">= 2.9.1"
 
-provider "kubectl" {
-  config_path = var.kube_config_path
-}
+#   repository = "oci://docker.io/envoyproxy"
+#   namespace  = var.ai_gateway_namespace
 
-resource "helm_release" "ai_gateway_crds" {
-  name             = "aieg-crd"
-  repository       = "oci://docker.io/envoyproxy"
-  chart            = "ai-gateway-crds-helm"
-  version          = var.chart_version
-  namespace        = var.ai_gateway_namespace
-  create_namespace = true
-}
+#   app = {
+#     name    = "aieg-crd"
+#     version = var.chart_version
+#     chart   = "ai-gateway-crds-helm"
+#     create_namespace = true
+#     deploy = 1
 
-resource "helm_release" "ai_gateway" {
-  name             = "aieg"
-  repository       = "oci://docker.io/envoyproxy"
-  chart            = "ai-gateway-helm"
-  version          = var.chart_version
-  namespace        = var.ai_gateway_namespace
-  create_namespace = true
-  skip_crds        = true
-  depends_on       = [helm_release.ai_gateway_crds]
-}
+#   }
 
-resource "helm_release" "envoy_gateway" {
-  name             = "eg"
-  repository       = "oci://docker.io/envoyproxy"
-  chart            = "gateway-helm"
-  version          = var.chart_version
-  namespace        = var.envoy_gateway_namespace
-  create_namespace = true
-  depends_on       = [helm_release.ai_gateway]
-}
+#   set = [
+#     {
+#       name  = "aiGateway.enabled"
+#       value = "false"
+#     }
+#   ]
 
-data "http" "config_yaml" {
-  url = var.config_yaml_url
-}
+#   values = []
 
-data "http" "rbac_yaml" {
-  url = var.rbac_yaml_url
-}
+#   depends_on = []
+# }
 
-resource "kubectl_manifest" "envoy_gateway_config" {
-  yaml_body = data.http.config_yaml.body
-  depends_on = [
-    data.http.config_yaml,
-    helm_release.envoy_gateway,
+module "envoy_gateway" {
+  source  = "terraform-module/release/helm"
+  version = ">= 2.9.1"
+
+  repository = "oci://docker.io/envoyproxy"
+  namespace  = var.envoy_gateway_namespace
+
+  app = {
+    name    = "eg"
+    version = var.chart_version
+    chart   = "gateway-helm"
+    deploy = 1
+    create_namespace = true
+  }
+
+  set = [
+    {
+      name  = "aiGateway.enabled"
+      value = "false"
+    }
   ]
+
+  values = [file("./values/config.yaml")]
+
+  depends_on = [module.ai_gateway]
 }
 
-resource "kubectl_manifest" "redis_namespace" {
-  yaml_body = <<-YAML
-    apiVersion: v1
-    kind: Namespace
-    metadata:
-      name: redis-system
-  YAML
+module "ai_gateway" {
+  source  = "terraform-module/release/helm"
+  version = ">= 2.9.1"
 
-  depends_on = [ helm_release.envoy_gateway ]
-}
+  repository = "oci://docker.io/envoyproxy"
+  namespace  = var.ai_gateway_namespace
 
-resource "kubectl_manifest" "redis_service" {
-  yaml_body = <<-YAML
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: redis
-      namespace: redis-system
-      labels:
-        app: redis
-    spec:
-      ports:
-        - name: redis
-          port: 6379
-      selector:
-        app: redis
-  YAML
+  app = {
+    name    = "aieg"
+    version = var.chart_version
+    chart   = "ai-gateway-helm"
+    deploy = 1
+    create_namespace = true
+    wait    = false
+  }
 
-  depends_on = [ kubectl_manifest.redis_namespace ]
-}
-
-resource "kubectl_manifest" "redis_deployment" {
-  yaml_body = <<-YAML
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: redis
-      namespace: redis-system
-    spec:
-      replicas: 1
-      selector:
-        matchLabels:
-          app: redis
-      template:
-        metadata:
-          labels:
-            app: redis
-        spec:
-          containers:
-            - image: redis:alpine
-              imagePullPolicy: IfNotPresent
-              name: redis
-              ports:
-                - name: redis
-                  containerPort: 6379
-          restartPolicy: Always
-  YAML
-
-  server_side_apply = true
-  field_manager     = "terraform"
-
-  depends_on = [ kubectl_manifest.redis_service, kubectl_manifest.redis_namespace  ] 
-}
+  set = [
+    {
+      name  = "aiGateway.enabled"
+      value = "false"
+    },
+  {
+    name  = "endpointConfig.rootPrefix"
+    value = ""
+  }
 
 
-resource "kubectl_manifest" "envoy_gateway_rbac" {
-  yaml_body = data.http.rbac_yaml.body
-  depends_on = [
-    data.http.rbac_yaml,
-    kubectl_manifest.envoy_gateway_config,
   ]
+
+  values = [/* file("./values/aieg.yaml") */]
+
+  depends_on = [/* module.ai_gateway_crds */]
+}
+
+module "redis" {
+  source = "terraform-module/release/helm"
+  version = ">= 2.9.1"
+
+  repository = "https://charts.bitnami.com/bitnami"
+  namespace  = var.redis_namespace
+
+  app = {
+    name       = "redis"
+    chart      = "redis"
+    version    = "19.0.1"
+    deploy     = 1
+    create_namespace = true
+  }
+
+  values = []
+
+  depends_on = [module.envoy_gateway]
 }
 
 
+module "envoy_gateway_config" {
+  source  = "terraform-module/release/helm"
+  version = ">= 2.9.1"
+
+  repository = ""
+  namespace  = var.envoy_gateway_namespace
+
+  app = {
+    name    = "envoy-gateway-config"
+    version = "0.1.0"
+    chart   = "./charts/envoy-gateway-config"
+    deploy  = 1
+    # force_update     = true
+  }
+
+  values = []
+
+  depends_on = [module.envoy_gateway, module.ai_gateway]
+}

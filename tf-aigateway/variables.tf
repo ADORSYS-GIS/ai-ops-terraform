@@ -1,7 +1,27 @@
-variable "kube_config_path" {
+variable "kube_host" {
+  type        = string
+  description = "API server endpoint link"
+}
+
+variable "kube_client_key" {
+  type        = string
+  description = "Input the Client key"
+}
+
+
+variable "kube_client_certificate" {
+  type = string
+  description = "client certificate"
+}
+
+variable "kube_cluster_ca_certificate" {
+  type        = string
+  description = "Client cluster ca certificate"
+}
+
+variable "kube_token" {
   type        = string
   description = "Path to the kubeconfig file"
-  default     = "~/.kube/config"
 }
 
 variable "chart_version" {
@@ -26,22 +46,4 @@ variable "redis_namespace" {
   type        = string
   description = "Namespace for Redis (note: this is referenced in YAML manifests; changing it may require updating the YAML content)"
   default     = "redis-system"
-}
-
-variable "redis_yaml_url" {
-  type        = string
-  description = "URL for the Redis YAML manifest"
-  default     = "https://raw.githubusercontent.com/envoyproxy/ai-gateway/main/manifests/envoy-gateway-config/redis.yaml"
-}
-
-variable "config_yaml_url" {
-  type        = string
-  description = "URL for the Envoy Gateway config YAML"
-  default     = "https://raw.githubusercontent.com/envoyproxy/ai-gateway/main/manifests/envoy-gateway-config/config.yaml"
-}
-
-variable "rbac_yaml_url" {
-  type        = string
-  description = "URL for the Envoy Gateway RBAC YAML"
-  default     = "https://raw.githubusercontent.com/envoyproxy/ai-gateway/main/manifests/envoy-gateway-config/rbac.yaml"
 }

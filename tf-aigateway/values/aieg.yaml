@@ -1,0 +1,8 @@
+controller:
+  image:
+    # Pin to the chart’s appVersion (matches 0.2.x chart)
+    tag: "0.2.1"
+
+extProc:
+  # Keep extproc in lockstep too
+  tag: "0.2.1"
