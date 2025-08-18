@@ -35,6 +35,8 @@ module "karpenter-helm" {
       clusterName: local.eks_name
       clusterEndpoint: module.eks.cluster_endpoint
       interruptionQueue: module.karpenter.queue_name
+      amiId: var.karpenter_ami_id
+      amiArchitecture: var.karpenter_ami_architecture
     })
   ]
 
