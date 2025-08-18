@@ -4,5 +4,4 @@ variable "kube_client_key" { type = string }
 variable "kube_host" { type = string }
 variable "kube_token" {
   type    = string
-  default = ""
 }

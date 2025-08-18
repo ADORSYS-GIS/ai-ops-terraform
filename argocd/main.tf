@@ -1,31 +1,27 @@
-# Main module to deploy Argo CD using Helm
 module "argocd" {
   source  = "terraform-module/release/helm"
-  version = "2.9.1"
+  version = ">=2.9.1"
 
   namespace  = "argocd"
   repository = "https://argoproj.github.io/argo-helm"
 
-  # Helm chart/application settings
   app = {
-    name          = "argocd"          # helm release name
+    name          = "argocd"          
     description   = "Argo CD via Terraform helm-release module"
-    chart         = "argo-cd"         # chart name in the repo
-    version       = "6.0.0"           # (optional) chart version; omit for latest
+    chart         = "argo-cd"         
+    version       = "6.0.0"           
     force_update  = true
     wait          = true
     recreate_pods = false
-    deploy        = 1                 # keep as 1 to enable deployment
+    deploy        = 1                 
     create_namespace = true
   }
 
-  # Inline values.yaml (merge as you like)
   values = [
     yamlencode({
       server = {
-        service = { type = "LoadBalancer" }  # change to NodePort/ClusterIP if needed
+        service = { type = "LoadBalancer" }  
       }
-      # Example: pass Argo CD params
       configs = {
         params = {
           "server.insecure" = true
