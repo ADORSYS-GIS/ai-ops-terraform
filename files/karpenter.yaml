@@ -1,0 +1,14 @@
+#nodeSelector:
+#  karpenter.sh/controller: 'true'
+dnsPolicy: Default
+settings:
+  clusterName: ${clusterName}
+  clusterEndpoint: ${clusterEndpoint}
+  interruptionQueue: ${interruptionQueue}
+  defaultInstanceProfile: ${clusterName}-instance-profile
+  amiFamily: Custom
+  amiSelector:
+    aws-ids: ["${amiId}"]
+    architecture: ["${amiArchitecture}"]
+webhook:
+  enabled: false
