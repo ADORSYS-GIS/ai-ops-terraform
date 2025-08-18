@@ -232,3 +232,15 @@ variable "fireworks_key" {
   sensitive   = true
   description = "Firework Key"
 }
+
+variable "karpenter_ami_id" {
+  type        = string
+  description = "Custom AMI ID to use for Karpenter nodes"
+  default     = ""
+}
+
+variable "karpenter_ami_architecture" {
+  type        = string
+  description = "AMI architecture (x86_64 or arm64)"
+  default     = "x86_64"
+}
