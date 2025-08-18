@@ -52,6 +52,21 @@ module "eks" {
       instance_types = var.knative_ec2_instance_types
       iam_role_additional_policies = {
         ebs = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        custom_ami = <<-EOT
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "ec2:DescribeImages",
+                  "ec2:DescribeInstanceTypes"
+                ],
+                "Resource": "*"
+              }
+            ]
+          }
+        EOT
       }
       labels = {
         gpu-node : "true"
