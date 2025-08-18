@@ -1,7 +1,7 @@
 # Local .terraform directories
 .terraform/
 .terraform.lock.hcl
-yaml.yaml
+./tf-aigateway/input.tfvars
 
 # .tfstate files
 *.tfstate
