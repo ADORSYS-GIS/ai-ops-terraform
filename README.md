@@ -37,7 +37,7 @@ This Terraform configuration creates a basic AWS EKS cluster with the following 
 
 ## Check the terraform using tfsec and tflint
 
-```shell
+```shellt
 tfsec .
 tflint
 ```
@@ -129,6 +129,25 @@ This will remove all the resources created by the Terraform configuration. Make 
 | [random_id.suffix](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
 | [aws_eks_cluster_auth.cluster](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/eks_cluster_auth) | data source |
 | [aws_route53_zone.selected](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/route53_zone) | data source |
+
+## Karpenter Configuration
+
+### Custom AMI Support
+To configure Karpenter to use a custom AMI, set these variables:
+```hcl
+karpenter_ami_id = "ami-1234567890abcdef0"  # Your custom AMI ID
+karpenter_ami_architecture = "x86_64"      # Architecture (x86_64 or arm64)
+```
+
+Requirements:
+- AMI must be compatible with your Kubernetes version
+- Must have necessary Kubernetes components pre-installed
+- Architecture must match your worker nodes
+
+Verification:
+```bash
+kubectl get nodes -o jsonpath='{.items[*].spec.providerID}' | grep -o 'ami-[^/]*'
+```
 
 ## Inputs
 
