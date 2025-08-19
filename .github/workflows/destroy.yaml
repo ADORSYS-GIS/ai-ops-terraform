@@ -1,0 +1,80 @@
+name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment name"
+        required: true
+        type: choice
+        options:
+          - dev
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    name: Destroys ${{ inputs.environment }} Environment
+    environment:
+      name: ${{ inputs.environment }}
+      url: https://${{ vars.DOMAIN_NAME }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.12.2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Set Environment Variables
+        run: |
+          echo "TF_VAR_name=${{ inputs.environment }}-env" >> $GITHUB_ENV
+          echo "TF_VAR_zone_name=${{ vars.DOMAIN_NAME }}" >> $GITHUB_ENV
+          echo "TF_VAR_oidc_kc_client_id=${{ secrets.OIDC_KC_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "TF_VAR_oidc_kc_client_secret=${{ secrets.OIDC_KC_CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "TF_VAR_oidc_kc_issuer_url=${{ vars.OIDC_KC_ISSUER_URL }}" >> $GITHUB_ENV
+
+          echo "TF_VAR_webui_secret_key=${{ secrets.WEBUI_SECRET_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_brave_api_key=${{ secrets.BRAVE_API_KEY }}" >> $GITHUB_ENV
+
+          echo "TF_VAR_pipeline_key=${{ secrets.PIPELINE_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_litelllm_masterkey=${{ secrets.LITELLLM_MASTERKEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_anthropic_key=${{ secrets.ANTHROPIC_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_gemini_key=${{ secrets.GEMINI_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_openai_key=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_fireworks_key=${{ secrets.FIREWORKS_KEY }}" >> $GITHUB_ENV
+          echo "TF_VAR_tool_api_key=${{ secrets.TOOL_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Adding backend
+        run: |
+          cat <<EOF > backend.tf
+          terraform {
+            backend "s3" {
+              key     = "do.not.delete.ai-terraform.tfstate"
+              encrypt = true
+            }
+          }
+          EOF
+          
+      - name: Terraform Init
+        run: |
+          terraform init -var-file=${{ inputs.environment }}.tfvars \
+          -backend-config="region=${{ vars.AWS_REGION }}" \
+          -backend-config="bucket=kivoyo-v2-${{ inputs.environment }}-terraform-state" \
+          -backend-config="dynamodb_table=kivoyo-v2-${{ inputs.environment }}-terraform-state-lock"
+
+      - name: Terraform Plan
+        run: |
+          terraform plan -destroy -var-file=${{ inputs.environment }}.tfvars -out=plan.tfplan
+
+      - name: Terraform Destroy
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          terraform destroy -auto-approve -var-file=${{ inputs.environment }}.tfvars
