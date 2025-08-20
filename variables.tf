@@ -233,6 +233,7 @@ variable "fireworks_key" {
   description = "Firework Key"
 }
 
+
 variable "s3_buckets" {
   description = "Map of S3 buckets to create with their configurations, users, and K8s secrets"
   type = map(object({
@@ -250,5 +251,12 @@ variable "s3_buckets" {
     })), {})
   }))
   default = {}
+}
+
+
+variable "kserve_version" {
+  description = "The version of KServe to install"
+  type        = string
+  default     = "v0.15.2"
 }
 
