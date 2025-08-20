@@ -1,3 +1,20 @@
+terraform {
+  required_providers {
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">= 3.0"
+    }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.31.0"
+    }
+    kubectl = {
+      source  = "alekc/kubectl"
+      version = ">= 2.0.0"
+    }
+  }
+}
+
 module "envoy_gateway" {
    source  = "terraform-module/release/helm"
    version = ">= 2.9.1"
@@ -62,5 +79,5 @@ module "redis" {
 
    values = var.redis_enabled ? [] : null 
 
-   depends_on = var.redis_enabled ? [module.envoy_gateway, module.ai_gateway] : []
+   depends_on = [module.envoy_gateway, module.ai_gateway]
 }

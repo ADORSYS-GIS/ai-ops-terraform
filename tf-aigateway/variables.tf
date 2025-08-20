@@ -51,5 +51,4 @@ variable "redis_namespace" {
 variable "enable_redis" {
   description = "Whether to deploy the Redis Helm chart"
   type        = bool
-  default     = false
 }
