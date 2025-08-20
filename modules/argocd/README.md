@@ -31,4 +31,5 @@ No resources.
 
 ## Outputs
 
-No outputs.
+- argocd_namespace
+- argocd_server_service_name
