@@ -22,23 +22,8 @@ terraform {
 }
 
 module "kserve" {
-  source = "./tf-kserve"
+  source = "./modules/tf-kserve"
 
-  kube_host              = var.kube_host
-  kube_token             = var.kube_token
-  kube_ca_cert           = var.kube_ca_cert
-  kube_client_cert       = var.kube_client_cert
-  kube_client_key        = var.kube_client_key
-  kserve_chart_version   = var.kserve_chart_version
-  kserve_version         = var.kserve_version
-  tls_certificate_name   = var.tls_certificate_name
-  install_gateway_api    = var.install_gateway_api
-  install_cert_manager   = var.install_cert_manager
-  install_knative        = var.install_knative
-  
-  providers = {
-    kubernetes = kubernetes
-  }
-
+  kserve_version                = var.kserve_version
+  eks_cluster_oidc_issuer_url   = module.eks.cluster_oidc_issuer_url
 }
-
