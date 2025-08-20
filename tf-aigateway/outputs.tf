@@ -10,5 +10,5 @@ output "envoy_gateway_namespace" {
 
 output "redis_namespace" {
   description = "Namespace where Redis is installed"
-  value       = var.redis_namespace
+  value       = var.enable_redis ? var.redis_namespace : null
 }

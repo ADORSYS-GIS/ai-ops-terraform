@@ -47,3 +47,9 @@ variable "redis_namespace" {
   description = "Namespace for Redis (note: this is referenced in YAML manifests; changing it may require updating the YAML content)"
   default     = "redis-system"
 }
+
+variable "enable_redis" {
+  description = "Whether to deploy the Redis Helm chart"
+  type        = bool
+  default     = false
+}
