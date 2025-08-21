@@ -20,3 +20,8 @@ terraform {
     }
   }
 }
+
+module "ai-gateway" {
+  source = "./modules/tf-aigateway"
+  eks_cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
+}
