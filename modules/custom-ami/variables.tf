@@ -20,9 +20,10 @@ variable "component_version" {
   default     = "1.0.0"
 }
 
-variable "customization_script_path" {
-  description = "Path to the shell script for customizing the AMI."
+variable "pipeline_schedule_expression" {
+  description = "The schedule expression for the image pipeline."
   type        = string
+  default     = "cron(0 0 * * 1)"
 }
 
 variable "tags" {
