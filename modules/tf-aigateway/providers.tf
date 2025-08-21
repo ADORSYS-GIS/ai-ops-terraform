@@ -17,7 +17,7 @@ provider "kubernetes" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = local.kubeconfig.host
     cluster_ca_certificate = local.kubeconfig.cluster_ca_certificate
     client_certificate     = local.kubeconfig.client_certificate
