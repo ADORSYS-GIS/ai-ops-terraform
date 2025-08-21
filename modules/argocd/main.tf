@@ -19,10 +19,6 @@ module "argocd" {
 
   values = [
     yamlencode({
-      server = {
-        service = { type = "LoadBalancer" }  
-      }
-
       configs = {
         params = {
           "server.insecure" = true
