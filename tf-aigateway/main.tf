@@ -32,7 +32,7 @@ module "envoy_gateway" {
 
    set = []
 
-   values = [file("./values/config.yaml")]
+   values = [file("./charts/envoy-gateway-override/values.yaml")]
 
    depends_on = []
  }
@@ -66,8 +66,8 @@ module "redis" {
    source = "terraform-module/release/helm"
    version = ">= 2.9.1"
 
-   repository = var.redis_enabled ? "https://charts.bitnami.com/bitnami" : null
-   namespace  = var.redis_enabled ? var.redis_namespace : null
+   repository = var.enable_redis ? "https://charts.bitnami.com/bitnami" : null
+   namespace  = var.enable_redis ? var.redis_namespace : null
 
    app = {
      name       = "redis"
@@ -77,7 +77,7 @@ module "redis" {
      create_namespace = true
    }
 
-   values = var.redis_enabled ? [] : null 
+   values = var.enable_redis ? [] : null 
 
    depends_on = [module.envoy_gateway, module.ai_gateway]
 }
