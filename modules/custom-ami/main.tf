@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 data "aws_ami" "eks_optimized" {
   most_recent = true
   owners      = ["amazon"]
@@ -48,15 +50,6 @@ resource "aws_iam_role_policy_attachment" "image_builder_s3" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
-# EC2 Image Builder Component
-resource "aws_imagebuilder_component" "custom_script" {
-  name     = "${local.name_prefix}-custom-scripts"
-  platform = "Linux"
-  version  = var.component_version
-  data     = file(var.customization_script_path)
-  tags     = local.tags
-}
-
 # EC2 Image Builder Recipe
 resource "aws_imagebuilder_image_recipe" "this" {
   name              = "${local.name_prefix}-recipe"
@@ -65,7 +58,7 @@ resource "aws_imagebuilder_image_recipe" "this" {
   working_directory = "/tmp"
 
   component {
-    component_arn = aws_imagebuilder_component.custom_script.arn
+    component_arn = "arn:aws:imagebuilder:${data.aws_region.current.name}:aws:component/update-linux/x.x.x"
   }
 
   tags = local.tags
@@ -89,7 +82,7 @@ resource "aws_imagebuilder_image_pipeline" "this" {
   infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.this.arn
 
   schedule {
-    schedule_expression                = "cron(0 0 * * 1)" # Weekly on Mondays at midnight
+    schedule_expression                = var.pipeline_schedule_expression
     pipeline_execution_start_condition = "EXPRESSION_MATCH_AND_DEPENDENCY_UPDATES_AFFECTED"
   }
 
