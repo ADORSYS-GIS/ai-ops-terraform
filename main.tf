@@ -27,3 +27,9 @@ module "kserve" {
   kserve_version                = var.kserve_version
   eks_cluster_oidc_issuer_url   = module.eks.cluster_oidc_issuer_url
 }
+
+module "ArgoCD" {
+  source = "./modules/argocd/"
+  eks_cluster_oidc_issuer_url   = module.eks.cluster_oidc_issuer_url
+
+}
