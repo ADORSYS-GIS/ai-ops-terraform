@@ -27,3 +27,8 @@ module "kserve" {
   kserve_version                = var.kserve_version
   eks_cluster_oidc_issuer_url   = module.eks.cluster_oidc_issuer_url
 }
+
+module "ai-gateway" {
+  source = "./modules/tf-aigateway"
+  eks_cluster_oidc_issuer_url = module.eks.cluster_oidc_issuer_url
+}
