@@ -30,6 +30,6 @@ module "kserve" {
 
 module "ArgoCD" {
   source = "./modules/argocd/"
-  eks_cluster_oidc_issuer_url   = module.eks.cluster_oidc_issuer_url
+  
 
 }
