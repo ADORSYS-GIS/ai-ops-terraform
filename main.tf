@@ -31,13 +31,8 @@ module "kserve" {
 module "argocd" {
   source = "./modules/argocd"
 
-  kube_host                    = module.eks.cluster_endpoint
-  kube_cluster_ca_certificate  = module.eks.cluster_certificate_authority_data
-  kube_token                   = data.aws_eks_cluster_auth.cluster.token
-}
-
-module "ArgoCD" {
-  source = "./modules/argocd/"
-  
-
+  providers = {
+    kubernetes = kubernetes
+    helm       = helm
+  }
 }
