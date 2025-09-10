@@ -1,1 +1,0 @@
-// Intentionally empty: this module consumes root-level providers

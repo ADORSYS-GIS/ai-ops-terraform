@@ -1,1 +1,0 @@
-// No variables required for providers; module relies on root-level providers.
