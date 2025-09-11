@@ -264,6 +264,6 @@ variable "kserve_version" {
 variable "enable_ai_gateway_redis" {
   description = "Whether to deploy Redis for the AI Gateway"
   type        = bool
-  default     = false
+  default     = true
 }
 

@@ -32,7 +32,10 @@ module "envoy_gateway" {
 
    set = []
 
-   values = [file("./charts/envoy-gateway-override/values.yaml")]
+   values = [templatefile("${path.module}/charts/envoy-gateway-override/values.yaml.tpl", {
+     enable_redis = var.enable_redis
+     redis_namespace = var.redis_namespace
+   })]
 
    depends_on = []
  }

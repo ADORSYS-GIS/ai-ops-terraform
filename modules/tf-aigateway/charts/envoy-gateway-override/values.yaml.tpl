@@ -55,8 +55,10 @@ envoyGateway:
         hostname: ai-gateway-controller.envoy-ai-gateway-system.svc.cluster.local
         port: 1063
 
+%{ if var.enable_redis ~}
   rateLimit:
     backend:
       type: Redis
       redis:
-        url: redis.redis-system.svc.cluster.local:6379
+        url: redis.${var.redis_namespace}.svc.cluster.local:6379
+%{ endif ~}
