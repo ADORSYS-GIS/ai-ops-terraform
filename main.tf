@@ -28,6 +28,8 @@ module "kserve" {
   eks_cluster_oidc_issuer_url   = module.eks.cluster_oidc_issuer_url
 }
 
-module "ai-gateway" {
+module "ai_gateway" {
   source = "./modules/tf-aigateway"
+
+  enable_redis = var.enable_ai_gateway_redis
 }
