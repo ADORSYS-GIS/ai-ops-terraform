@@ -9,7 +9,7 @@ module "argocd" {
     name          = "argocd"          
     description   = "Argo CD via Terraform helm-release module"
     chart         = "argo-cd"         
-    version       = "6.0.0"           
+    version       = "6.7.18"          
     force_update  = true
     wait          = true
     recreate_pods = false
@@ -17,13 +17,5 @@ module "argocd" {
     create_namespace = true
   }
 
-  values = [
-    yamlencode({
-      configs = {
-        params = {
-          "server.insecure" = true
-        }
-      }
-    })
-  ]
+  values = []
 }
