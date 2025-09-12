@@ -1,9 +1,3 @@
-variable "kubeconfig_path" {
-  description = "Path to kubeconfig file for cluster access"
-  type        = string
-  default     = "~/.kube/config"
-}
-
 variable "namespace" {
   description = "Namespace where lmcache will be installed"
   type        = string
