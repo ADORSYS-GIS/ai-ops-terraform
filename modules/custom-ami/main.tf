@@ -92,3 +92,11 @@ resource "aws_imagebuilder_image_pipeline" "this" {
 
   tags = local.tags
 }
+
+resource "aws_imagebuilder_image" "this" {
+  name                             = "${local.name_prefix}-image"
+  image_recipe_arn                 = aws_imagebuilder_image_recipe.this.arn
+  infrastructure_configuration_arn = aws_imagebuilder_infrastructure_configuration.this.arn
+
+  tags = local.tags
+}
