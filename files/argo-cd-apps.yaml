@@ -168,8 +168,7 @@ resources:
         - tags:
             karpenter.sh/discovery: "${cluster_name}"
       amiSelectorTerms:
-        - alias: bottlerocket@latest
-        #- name: amazon-eks-gpu-node-1.32-v20250704
+        - name: ${karpenter_ami_name}
       blockDeviceMappings:
         - deviceName: /dev/xvda
           ebs:
