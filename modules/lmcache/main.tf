@@ -1,31 +1,15 @@
-terraform {
-  required_providers {
-    helm = {
-      source  = "hashicorp/helm"
-      version = ">= 2.9.0"
-    }
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = ">= 2.11.0"
-    }
-  }
-}
-
-provider "helm" {
-  kubernetes = {
-    config_path = var.kubeconfig_path
-  }
-}
-
-resource "helm_release" "lmcache" {
-  name             = var.release_name
-  repository       = var.helm_repo
-  chart            = var.helm_chart
-  version          = var.chart_version
-  namespace        = var.namespace
-  create_namespace = true
-
+resource "helm_release" "lmcache_kserve_inference" {
+  name       = var.release_name
+  namespace  = var.namespace
+  
+  # Specify the path to your local Helm chart
+  chart      = "${path.module}/lmcache-kserve-inference"
+  
   values = [
-    file("${path.module}/values.yaml")
+    templatefile("${path.module}/values.yaml", {
+      image_tag = var.image_tag
+      storage_uri = var.storage_uri
+    })
   ]
 }
+

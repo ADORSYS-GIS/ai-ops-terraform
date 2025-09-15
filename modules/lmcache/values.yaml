@@ -1,17 +1,4 @@
-replicaCount: 2
-
-resources:
-  limits:
-    cpu: "1"
-    memory: "2Gi"
-  requests:
-    cpu: "500m"
-    memory: "1Gi"
-
-persistence:
-  enabled: true
-  size: 10Gi
-
-service:
-  type: ClusterIP
-  port: 8080
+inferenceService:
+  model:
+    image: "lmcache/vllm-openai:${image_tag}"
+    storageUri: "${storage_uri}"

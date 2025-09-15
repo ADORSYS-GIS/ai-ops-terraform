@@ -1,35 +1,23 @@
-variable "kubeconfig_path" {
-  description = "Path to kubeconfig file for cluster access"
+variable "release_name" {
+  description = "The name of the Helm release."
   type        = string
-  default     = "~/.kube/config"
+  default     = "lmcache-inference"
 }
 
 variable "namespace" {
-  description = "Namespace where lmcache will be installed"
+  description = "The namespace to deploy the InferenceService into."
   type        = string
-  default     = "vllm-lmcache"
+  default     = "default"
 }
 
-variable "release_name" {
-  description = "Helm release name"
+variable "image_tag" {
+  description = "The image tag for the LMCache-enabled vLLM predictor."
   type        = string
-  default     = "vllm-stack-lmcache"
+  default     = ""
 }
 
-variable "helm_repo" {
-  description = "Helm chart repository URL for lmcache"
+variable "storage_uri" {
+  description = "The storage URI for the LLM model"
   type        = string
-  default     = "https://vllm-project.github.io/production-stack"
-}
-
-variable "helm_chart" {
-  description = "Helm chart name for lmcache"
-  type        = string
-  default     = "vllm-stack"
-}
-
-variable "chart_version" {
-  description = "Helm chart version"
-  type        = string
-  default     = "0.1.4"
+  default     = ""
 }
