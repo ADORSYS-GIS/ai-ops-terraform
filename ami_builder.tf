@@ -22,16 +22,18 @@ resource "aws_security_group" "default" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
+    description = "Allow SSH access from within the VPC"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [module.vpc.vpc_cidr_block] #tfsec:ignore:aws-ec2-no-public-ingress-sgr
   }
 
   egress {
+    description = "Allow all outbound traffic"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
   }
 }
