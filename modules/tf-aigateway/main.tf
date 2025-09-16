@@ -65,6 +65,29 @@ module "envoy_gateway_config" {
    depends_on = []
 }
 
+module "ai_gateway_crds" {
+   source  = "terraform-module/release/helm"
+   version = ">= 2.9.1"
+
+   repository = "oci://docker.io/envoyproxy"
+   namespace  = var.ai_gateway_namespace
+
+   app = {
+     name    = "aieg-crd"
+     chart   = "ai-gateway-crds-helm"
+     version = var.chart_version
+     deploy  = 1
+     create_namespace = true
+     wait    = true
+   }
+
+   set = []
+
+   values = []
+
+   depends_on = [module.envoy_gateway]
+}
+
 module "ai_gateway" {
    source  = "terraform-module/release/helm"
    version = ">= 2.9.1"
@@ -85,7 +108,7 @@ module "ai_gateway" {
 
    values = []
 
-   depends_on = [module.envoy_gateway, module.envoy_gateway_config]
+   depends_on = [module.envoy_gateway, module.envoy_gateway_config, module.ai_gateway_crds]
  }
 
 module "redis" {
