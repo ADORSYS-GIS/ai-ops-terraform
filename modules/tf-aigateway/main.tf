@@ -32,13 +32,38 @@ module "envoy_gateway" {
 
    set = []
 
-   values = [templatefile("${path.module}/charts/envoy-gateway-override/values.yaml.tpl", {
-     enable_redis = var.enable_redis
-     redis_namespace = var.redis_namespace
-   })]
+   values = []
 
    depends_on = []
  }
+
+module "envoy_gateway_config" {
+   source  = "terraform-module/release/helm"
+   version = ">= 2.9.1"
+
+   repository = "https://bedag.github.io/helm-charts"
+   namespace  = var.envoy_gateway_namespace
+
+   app = {
+     name    = "eg-config"
+     chart   = "raw"
+     version = "2.2.0"
+     deploy  = 1
+     create_namespace = true
+     wait    = false
+   }
+
+   set = []
+
+   values = [templatefile("${path.module}/files/raw-configmap-values.yaml.tpl", {
+     envoy_gateway_namespace = var.envoy_gateway_namespace
+     ai_gateway_namespace    = var.ai_gateway_namespace
+     enable_redis            = var.enable_redis
+     redis_namespace         = var.redis_namespace
+   })]
+
+   depends_on = []
+}
 
 module "ai_gateway" {
    source  = "terraform-module/release/helm"
@@ -60,7 +85,7 @@ module "ai_gateway" {
 
    values = []
 
-   depends_on = [module.envoy_gateway]
+   depends_on = [module.envoy_gateway, module.envoy_gateway_config]
  }
 
 module "redis" {

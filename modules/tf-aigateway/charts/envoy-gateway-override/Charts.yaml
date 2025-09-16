@@ -1,6 +1,0 @@
-apiVersion: v2
-name: envoy-gateway-override
-description: A tiny chart to override Envoy Gateway ConfigMap
-type: application
-version: 0.1.0
-appVersion: "1.0"
