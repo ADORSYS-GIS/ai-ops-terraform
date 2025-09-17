@@ -19,7 +19,6 @@ variable "image_tag" {
 variable "storage_uri" {
   description = "The storage URI for the LLM model"
   type        = string
-  default     = ""
   
   validation {
     condition = var.storage_uri != ""
