@@ -8,6 +8,19 @@ output "kserve_namespace" {
   value = module.kserve.kserve_namespace
 }
 
+# AI Gateway module outputs
+output "ai_gateway_namespace" {
+  value = module.ai_gateway.ai_gateway_namespace
+}
+
+output "envoy_gateway_namespace" {
+  value = module.ai_gateway.envoy_gateway_namespace
+}
+
+output "redis_namespace" {
+  value = module.ai_gateway.redis_namespace
+}
+
 # Output all bucket information as a nested dictionary
 output "s3_buckets" {
   description = "Information about created S3 buckets, users, and Kubernetes secrets"
