@@ -17,7 +17,7 @@ variable "image_tag" {
 }
 
 variable "storage_uri" {
-  description = "The storage URI for the LLM model (required - e.g., s3://your-bucket/model-path, gs://your-bucket/model-path, or pvc://your-pvc/model-path)"
+  description = "The storage URI for the LLM model"
   type        = string
   default     = ""
 }
