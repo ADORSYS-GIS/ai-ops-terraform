@@ -5,6 +5,12 @@ resource "helm_release" "lmcache_kserve_inference" {
   # Use chart from GitHub repository
   repository = "https://github.com/ADORSYS-GIS/ai-helm"
   chart      = "charts/lmcache-kserve-inference"
+  version    = var.chart_version
+  
+  # Production settings
+  wait             = true
+  timeout          = 600
+  create_namespace = true
   
   values = [
     templatefile("${path.module}/values.yaml", {
