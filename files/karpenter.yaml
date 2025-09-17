@@ -6,8 +6,8 @@ settings:
   clusterEndpoint: ${clusterEndpoint}
   interruptionQueue: ${interruptionQueue}
   defaultInstanceProfile: ${instanceProfile}
-%{ if customAmiId != "" }
+{ if customAmiId != "" }
   defaultAMI: ${customAmiId}
-%{ endif }
+{ endif }
 webhook:
   enabled: false
