@@ -29,5 +29,5 @@ variable "storage_uri" {
 variable "chart_version" {
   description = "The version of the Helm chart to deploy"
   type        = string
-  default     = "latest"
+  default     = "0.1.0"
 }
