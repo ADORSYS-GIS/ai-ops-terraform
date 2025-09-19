@@ -130,7 +130,7 @@ module "eks_blueprints_addons" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
-  enable_argocd                       = true
+  enable_argocd                       = false
   enable_external_dns                 = true
   enable_cluster_autoscaler           = true
   enable_aws_load_balancer_controller = true
@@ -187,22 +187,7 @@ module "eks_blueprints_addons" {
     ]
   }
 
-  argocd = {
-    name          = "argocd"
-    chart_version = "8.1.3"
-    repository    = "https://argoproj.github.io/argo-helm"
-    namespace     = "argocd"
-    values = [
-      templatefile("${path.module}/files/argocd-values.yaml", {
-        domain                = local.argocdDomain,
-        name                  = local.name,
-        certArn               = var.cert_arn,
-        oidc_kc_client_id     = var.oidc_kc_client_id,
-        oidc_kc_client_secret = var.oidc_kc_client_secret,
-        oidc_kc_issuer_url    = var.oidc_kc_issuer_url,
-      })
-    ]
-  }
+  # ArgoCD is installed via dedicated module `modules/argocd`
 
   external_dns_route53_zone_arns = [data.aws_route53_zone.selected.arn]
 
