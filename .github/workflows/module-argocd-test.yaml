@@ -20,15 +20,13 @@ jobs:
     - name: Set up K3s cluster
       run: |
         # Install K3s with required configuration
-        curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.29.0 K3S_KUBECONFIG_MODE=777 sh -
+        curl -sfL https://get.k3s.io | sh -
         
         # Create kubeconfig directory and copy config
         mkdir -p ${{ github.workspace }}/.kube
         sudo cp /etc/rancher/k3s/k3s.yaml $KUBECONFIG
         sudo chmod 644 $KUBECONFIG
-        
-        # Update kubeconfig to use proper server address
-        sed -i 's/127.0.0.1/localhost/g' $KUBECONFIG
+      
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
