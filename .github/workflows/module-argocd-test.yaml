@@ -23,7 +23,7 @@ jobs:
         curl -sfL https://get.k3s.io | sh -
         
         # Wait for K3s to be fully ready
-        sleep 30
+        sleep 60
         
         # Create kubeconfig directory and copy config
         mkdir -p ${{ github.workspace }}/.kube
