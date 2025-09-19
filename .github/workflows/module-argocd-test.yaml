@@ -24,7 +24,8 @@ jobs:
         
         # Create kubeconfig directory and copy config
         mkdir -p ${{ github.workspace }}/.kube
-        sudo cp /etc/rancher/k3s/k3s.yaml $KUBECONFIG
+        sudo cp /etc/rancher/k3s/k3s.yaml ${{ github.workspace }}/.kube
+        export KUBECONFIG=${{ github.workspace }}/.kube/config
         sudo chmod 644 $KUBECONFIG
       
 
