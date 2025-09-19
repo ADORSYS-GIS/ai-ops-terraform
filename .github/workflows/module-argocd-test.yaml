@@ -36,15 +36,6 @@ jobs:
         # Set KUBECONFIG for subsequent steps
         echo "KUBECONFIG=${{ github.workspace }}/.kube/config" >> $GITHUB_ENV
 
-    - name: Verify K3s installation
-      run: |
-        # Wait for K3s to be ready
-        timeout 60s bash -c 'until sudo kubectl get nodes 2>/dev/null; do sleep 2; done'
-        
-        # Verify cluster access
-        kubectl cluster-info
-        kubectl get nodes
-
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
       with:
