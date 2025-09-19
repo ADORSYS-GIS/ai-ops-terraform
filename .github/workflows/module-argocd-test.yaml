@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  KUBECONFIG: ${{ github.workspace }}/.kube/config
+  KUBECONFIG: ~/.kube/config
 
 jobs:
   deploy-argocd:
@@ -25,16 +25,12 @@ jobs:
         # Wait for K3s to be fully ready
         sleep 60
         
-        # Create kubeconfig directory and copy config
-        mkdir -p ${{ github.workspace }}/.kube
-        sudo cp /etc/rancher/k3s/k3s.yaml "${{ github.workspace }}/.kube/config"
-        sudo chmod 644 "${{ github.workspace }}/.kube/config"
-        
-        # Update kubeconfig to use proper server address
-        sed -i 's/127.0.0.1/localhost/g' "${{ github.workspace }}/.kube/config"
-        
-        # Set KUBECONFIG for subsequent steps
-        echo "KUBECONFIG=${{ github.workspace }}/.kube/config" >> $GITHUB_ENV
+    - name: Copy Kubeconfig to default location
+      run: |
+        mkdir -p ~/.kube
+        cp "${{ github.workspace }}/.kube/config" ~/.kube/config
+        chmod 644 ~/.kube/config
+        echo "KUBECONFIG=~/.kube/config" >> $GITHUB_ENV
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
