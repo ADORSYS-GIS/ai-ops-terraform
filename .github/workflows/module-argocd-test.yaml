@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  KUBECONFIG: ~/.kube/config
+  KUBECONFIG: ${{ github.workspace }}/.kube/config
 
 jobs:
   deploy-argocd:
@@ -19,18 +19,39 @@ jobs:
 
     - name: Set up K3s cluster
       run: |
-        # Install K3s with a stable version that's known to work
+        # Install K3s with proper configuration
         curl -sfL https://get.k3s.io | sh -
         
         # Wait for K3s to be fully ready
-        sleep 60
+        sleep 30
         
+        # Create kubeconfig directory and copy config
+        mkdir -p ${{ github.workspace }}/.kube
+        sudo cp /etc/rancher/k3s/k3s.yaml "${{ github.workspace }}/.kube/config"
+        sudo chmod 644 "${{ github.workspace }}/.kube/config"
+        
+        # Update kubeconfig to use proper server address
+        sed -i 's/127.0.0.1/localhost/g' "${{ github.workspace }}/.kube/config"
+        
+        # Set KUBECONFIG for subsequent steps
+        echo "KUBECONFIG=${{ github.workspace }}/.kube/config" >> $GITHUB_ENV
+
+    - name: Verify K3s installation and kubeconfig
+      run: |
+        # Verify kubeconfig exists and is accessible
+        echo "Checking kubeconfig file:"
+        ls -la "${{ github.workspace }}/.kube/config"
+        
+        # Verify cluster access
+        kubectl cluster-info
+        kubectl get nodes
+
     - name: Copy Kubeconfig to default location
       run: |
         mkdir -p ~/.kube
         cp "${{ github.workspace }}/.kube/config" ~/.kube/config
         chmod 644 ~/.kube/config
-        echo "KUBECONFIG=~/.kube/config" >> $GITHUB_ENV
+        echo "Copied kubeconfig to default location"
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
@@ -41,12 +62,6 @@ jobs:
       uses: azure/setup-helm@v4
       with:
         version: 'v3.13.0'
-
-    - name: Configure Kubernetes context
-      run: |
-        # Verify cluster access
-        kubectl cluster-info
-        kubectl get nodes
 
     - name: Terraform Init in argocd module
       run: |
