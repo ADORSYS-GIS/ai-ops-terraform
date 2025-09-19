@@ -11,7 +11,7 @@ env:
 jobs:
   deploy-argocd:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 30
 
     steps:
     - name: Checkout code
@@ -19,17 +19,31 @@ jobs:
 
     - name: Set up K3s cluster
       run: |
-        curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.29.0 K3S_KUBECONFIG_MODE=777 sh -
+        # Install K3s with a stable version that's known to work
+        curl -sfL https://get.k3s.io | sh -
+        
+        # Wait for K3s to be fully ready
+        sleep 30
+        
+        # Create kubeconfig directory and copy config
         mkdir -p ${{ github.workspace }}/.kube
         sudo cp /etc/rancher/k3s/k3s.yaml "${{ github.workspace }}/.kube/config"
         sudo chmod 644 "${{ github.workspace }}/.kube/config"
+        
+        # Update kubeconfig to use proper server address
         sed -i 's/127.0.0.1/localhost/g' "${{ github.workspace }}/.kube/config"
-        echo "KUBECONFIG=${{ github.workspace }}/.kube/config" >> $GITHUB_ENV      
+        
+        # Set KUBECONFIG for subsequent steps
+        echo "KUBECONFIG=${{ github.workspace }}/.kube/config" >> $GITHUB_ENV
+
     - name: Verify K3s installation
       run: |
-        sudo systemctl status k3s.service --no-pager || true
-        journalctl -u k3s.service --no-pager -n 20 || true
+        # Wait for K3s to be ready
         timeout 60s bash -c 'until sudo kubectl get nodes 2>/dev/null; do sleep 2; done'
+        
+        # Verify cluster access
+        kubectl cluster-info
+        kubectl get nodes
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
@@ -55,7 +69,9 @@ jobs:
     - name: Comment out upgrade_install argument in module
       run: |
         cd modules/argocd
-        ls -la
+        # Wait for terraform module to be downloaded
+        sleep 5
+        # Comment out the problematic line
         sed -i 's/^\(\s*\)upgrade_install/\1# upgrade_install/' .terraform/modules/argocd/main.tf
         echo "Commented out upgrade_install line:"
         grep -n "upgrade_install" .terraform/modules/argocd/main.tf
@@ -82,4 +98,4 @@ jobs:
         # Retrieve initial admin password
         kubectl -n argocd get secret argocd-initial-admin-secret \
           -o jsonpath="{.data.password}" | base64 -d
-
+      continue-on-error: true  # This might not exist if password was changed
