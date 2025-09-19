@@ -51,6 +51,7 @@ jobs:
 
     - name: Comment out upgrade_install argument in module
       run: |
+        ls -la
         sed -i 's/^\(\s*\)upgrade_install/\1# upgrade_install/' .terraform/modules/argocd/main.tf
         echo "Commented out upgrade_install line:"
         grep -n "upgrade_install" .terraform/modules/argocd/main.tf
