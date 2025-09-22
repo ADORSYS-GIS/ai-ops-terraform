@@ -13,7 +13,7 @@ variable "namespace" {
 variable "image_tag" {
   description = "The image tag for the LMCache-enabled vLLM predictor."
   type        = string
-  default     = "v0.1.0"
+  default     = "v0.3.6"
 }
 
 variable "storage_uri" {
