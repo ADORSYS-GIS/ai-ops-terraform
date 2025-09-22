@@ -21,6 +21,11 @@ output "redis_namespace" {
   value = module.ai_gateway.redis_namespace
 }
 
+output "redis_endpoint" {
+  description = "The connection endpoint for the Redis cluster."
+  value       = module.redis.cluster_address
+}
+
 # Output all bucket information as a nested dictionary
 output "s3_buckets" {
   description = "Information about created S3 buckets, users, and Kubernetes secrets"
