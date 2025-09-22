@@ -17,7 +17,7 @@ terraform {
 
 module "envoy_gateway" {
    source  = "terraform-module/release/helm"
-   version = ">= 2.9.1"
+   version = "2.8.2"
 
    repository = "oci://docker.io/envoyproxy"
    namespace  = var.envoy_gateway_namespace
@@ -39,7 +39,7 @@ module "envoy_gateway" {
 
 module "envoy_gateway_config" {
    source  = "terraform-module/release/helm"
-   version = ">= 2.9.1"
+   version = "2.8.2"
 
    repository = "https://bedag.github.io/helm-charts"
    namespace  = var.envoy_gateway_namespace
@@ -67,7 +67,7 @@ module "envoy_gateway_config" {
 
 module "ai_gateway_crds" {
    source  = "terraform-module/release/helm"
-   version = ">= 2.9.1"
+   version = "2.8.2"
 
    repository = "oci://docker.io/envoyproxy"
    namespace  = var.ai_gateway_namespace
@@ -90,7 +90,7 @@ module "ai_gateway_crds" {
 
 module "ai_gateway" {
    source  = "terraform-module/release/helm"
-   version = ">= 2.9.1"
+   version = "2.8.2"
 
    repository = "oci://docker.io/envoyproxy"
    namespace  = var.ai_gateway_namespace
@@ -115,7 +115,7 @@ module "redis" {
    count = var.enable_redis ? 1 : 0
 
    source = "terraform-module/release/helm"
-   version = ">= 2.9.1"
+   version = "2.8.2"
 
    repository = var.enable_redis ? "https://charts.bitnami.com/bitnami" : null
    namespace  = var.enable_redis ? var.redis_namespace : null
