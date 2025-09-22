@@ -21,14 +21,6 @@ resource "aws_security_group" "default" {
   description = "Default security group for AMI builder"
   vpc_id      = module.vpc.vpc_id
 
-  ingress {
-    description = "Allow SSH access from within the VPC"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = [module.vpc.vpc_cidr_block] #tfsec:ignore:aws-ec2-no-public-ingress-sgr
-  }
-
   egress {
     description = "Allow all outbound traffic"
     from_port   = 0
