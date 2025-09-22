@@ -17,13 +17,9 @@ variable "image_tag" {
 }
 
 variable "storage_uri" {
-  description = "The storage URI for the LLM model"
+  description = "The storage URI for the LLM model. If not provided, it will default to the Redis endpoint if available."
   type        = string
-  
-  validation {
-    condition = var.storage_uri != ""
-    error_message = "The storage_uri variable must be provided and cannot be empty. Please specify a valid storage URI (e.g., s3://bucket/path, gs://bucket/path, or pvc://pvc-name/path)."
-  }
+  default     = ""
 }
 
 variable "chart_version" {
