@@ -11,10 +11,5 @@ terraform {
   }
 }
 
-# This provider block has to be deleted before merging to the main branch
-provider "helm" {
-  kubernetes = {
-    config_path = "~/.kube/config"  # Update path if needed
-  }
-}
+
 
