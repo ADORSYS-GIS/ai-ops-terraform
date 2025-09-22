@@ -1,8 +1,11 @@
 name: Deploy ArgoCD to K3s with Terraform
+permissions:
+  contents: read
 
 on:
   push:
-    branches: [argocd-setup]
+    branches: 
+      - '**'
   workflow_dispatch:
 
 env:
