@@ -64,24 +64,24 @@ variable "resources" {
     requests = object({
       memory = string
       cpu    = string
-      "nvidia.com/gpu" = string
+      gpu    = string
     })
     limits = object({
       memory = string
       cpu    = string
-      "nvidia.com/gpu" = string
+      gpu    = string
     })
   })
   default = {
     requests = {
       memory = "8Gi"   
       cpu    = "4000m"  
-      "nvidia.com/gpu" = "1"
+      gpu    = "1"
     }
     limits = {
       memory = "16Gi"  
       cpu    = "8000m"  
-      "nvidia.com/gpu" = "1"
+      gpu    = "1"
     }
   }
 }

@@ -7,11 +7,11 @@ inferenceService:
     requests:
       memory: "${resources.requests.memory}"
       cpu: "${resources.requests.cpu}"
-      nvidia.com/gpu: "${resources.requests["nvidia.com/gpu"]}"
+      nvidia.com/gpu: "${resources.requests.gpu}"
     limits:
       memory: "${resources.limits.memory}"
       cpu: "${resources.limits.cpu}"
-      nvidia.com/gpu: "${resources.limits["nvidia.com/gpu"]}"
+      nvidia.com/gpu: "${resources.limits.gpu}"
 
 lmcache:
   chunkSize: "${lmcache.chunkSize}"
@@ -20,8 +20,12 @@ lmcache:
   maxLocalDiskSize: "${lmcache.maxLocalDiskSize}"
   remoteUrl: "${lmcache.remoteUrl}"
   enableP2P: "${lmcache.enableP2P}"
+%{ if lmcache.lookupUrl != null ~}
   lookupUrl: "${lmcache.lookupUrl}"
+%{ endif ~}
+%{ if lmcache.distributedUrl != null ~}
   distributedUrl: "${lmcache.distributedUrl}"
+%{ endif ~}
 
 ingress:
   enabled: ${ingress.enabled}
