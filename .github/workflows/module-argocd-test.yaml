@@ -56,6 +56,82 @@ jobs:
         chmod 644 ~/.kube/config
         echo "Copied kubeconfig to default location"
 
+    - name: Create Terraform variables file
+      run: |
+        cat > modules/argocd/variables.tf << 'EOF'
+        variable "anthropic_key" {
+          default = "anthropic_dummy_key_ABC123"
+        }
+
+        variable "brave_api_key" {
+          default = "brave_dummy_key_DEF456"
+        }
+
+        variable "cert_arn" {
+          default = "arn:aws:acm:us-east-1:123456789012:certificate/abcdefg-hijk-lmnop-qrstuvwx"
+        }
+
+        variable "fireworks_key" {
+          default = "fireworks_dummy_key_GHI789"
+        }
+
+        variable "gemini_key" {
+          default = "gemini_dummy_key_JKL012"
+        }
+
+        variable "litelllm_masterkey" {
+          default = "litelllm_dummy_masterkey_MNO345"
+        }
+
+        variable "oidc_kc_client_id" {
+          default = "oidc_client_id_dummy_PQR678"
+        }
+
+        variable "oidc_kc_client_secret" {
+          default = "oidc_client_secret_dummy_STU901"
+        }
+
+        variable "oidc_kc_issuer_url" {
+          default = "https://issuer.example.com/auth/realm/dummy"
+        }
+
+        variable "openai_key" {
+          default = "openai_dummy_key_VWX234"
+        }
+
+        variable "pipeline_key" {
+          default = "pipeline_dummy_key_YZA567"
+        }
+
+        variable "tool_api_key" {
+          default = "tool_dummy_key_BCD890"
+        }
+
+        variable "webui_secret_key" {
+          default = "webui_dummy_secret_key_EFG123"
+        }
+
+        variable "zone_name" {
+          default = "example.com"
+        }
+        EOF
+                echo "Created variables.tf with dummy values"
+
+    - name: Create provider overrides
+      run: |
+        cat > modules/argocd/providers_override.tf << 'EOF'
+        provider "kubernetes" {
+          config_path = "~/.kube/config"
+        }
+
+        provider "helm" {
+          kubernetes {
+            config_path = "~/.kube/config"
+          }
+        }
+        EOF
+                echo "Created providers_override.tf"
+
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
       with:
@@ -81,10 +157,9 @@ jobs:
         echo "Commented out upgrade_install line:"
         grep -n "upgrade_install" .terraform/modules/argocd/main.tf
 
-    - name: Terraform Apply in argocd module
+    - name: Terraform Apply argocd module
       run: |
-        cd modules/argocd
-        terraform apply -auto-approve
+        terraform apply -target=module.argocd -auto-approve 
 
     - name: Verify ArgoCD installation
       run: |
