@@ -146,17 +146,7 @@ jobs:
       run: |
         cd modules/argocd
         terraform init
-
-    - name: Comment out upgrade_install argument in module
-      run: |
-        cd modules/argocd
-        # Wait for terraform module to be downloaded
-        sleep 5
-        # Comment out the problematic line
-        sed -i 's/^\(\s*\)upgrade_install/\1# upgrade_install/' .terraform/modules/argocd/main.tf
-        echo "Commented out upgrade_install line:"
-        grep -n "upgrade_install" .terraform/modules/argocd/main.tf
-
+        
     - name: Terraform Apply argocd module
       run: |
         terraform apply -target=module.argocd -auto-approve 
