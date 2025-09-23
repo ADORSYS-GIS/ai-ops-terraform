@@ -58,7 +58,7 @@ jobs:
 
     - name: Create Terraform variables file
       run: |
-        cat > modules/argocd/variables.tf << 'EOF'
+        cat > variables.auto.tfvars << 'EOF'
         variable "anthropic_key" {
           default = "anthropic_dummy_key_ABC123"
         }
