@@ -37,6 +37,7 @@ variable "environment" {
 variable "cpu_ec2_instance_types" {
   description = "The EC2 instance type for the CPU server"
   type        = list(string)
+  default = ["t3.medium", "t3.large"]
 }
 
 variable "cpu_min_instance" {
@@ -66,6 +67,7 @@ variable "cpu_capacity_type" {
 variable "mlflow_ec2_instance_types" {
   description = "The EC2 instance type for the MLFlow server"
   type        = list(string)
+  default = ["t3.medium", "t3.large", "m5.large"]
 }
 
 variable "mlflow_min_instance" {
