@@ -58,62 +58,21 @@ jobs:
 
     - name: Create Terraform variables file
       run: |
-        cat > var-default.tf << 'EOF'
-        variable "anthropic_key" {
-          default = "anthropic_dummy_key_ABC123"
-        }
-
-        variable "brave_api_key" {
-          default = "brave_dummy_key_DEF456"
-        }
-
-        variable "cert_arn" {
-          default = "arn:aws:acm:us-east-1:123456789012:certificate/abcdefg-hijk-lmnop-qrstuvwx"
-        }
-
-        variable "fireworks_key" {
-          default = "fireworks_dummy_key_GHI789"
-        }
-
-        variable "gemini_key" {
-          default = "gemini_dummy_key_JKL012"
-        }
-
-        variable "litelllm_masterkey" {
-          default = "litelllm_dummy_masterkey_MNO345"
-        }
-
-        variable "oidc_kc_client_id" {
-          default = "oidc_client_id_dummy_PQR678"
-        }
-
-        variable "oidc_kc_client_secret" {
-          default = "oidc_client_secret_dummy_STU901"
-        }
-
-        variable "oidc_kc_issuer_url" {
-          default = "https://issuer.example.com/auth/realm/dummy"
-        }
-
-        variable "openai_key" {
-          default = "openai_dummy_key_VWX234"
-        }
-
-        variable "pipeline_key" {
-          default = "pipeline_dummy_key_YZA567"
-        }
-
-        variable "tool_api_key" {
-          default = "tool_dummy_key_BCD890"
-        }
-
-        variable "webui_secret_key" {
-          default = "webui_dummy_secret_key_EFG123"
-        }
-
-        variable "zone_name" {
-          default = "example.com"
-        }
+        cat > variables.tfvars << 'EOF'
+        anthropic_key = "anthropic_dummy_key_ABC123"
+        brave_api_key = "brave_dummy_key_DEF456"
+        cert_arn = "arn:aws:acm:us-east-1:123456789012:certificate/abcdefg-hijk-lmnop-qrstuvwx"
+        fireworks_key = "fireworks_dummy_key_GHI789"
+        gemini_key = "gemini_dummy_key_JKL012"
+        litelllm_masterkey = "litelllm_dummy_masterkey_MNO345"
+        oidc_kc_client_id = "oidc_client_id_dummy_PQR678"
+        oidc_kc_client_secret = "oidc_client_secret_dummy_STU901"
+        oidc_kc_issuer_url = "https://issuer.example.com/auth/realm/dummy"
+        openai_key = "openai_dummy_key_VWX234"
+        pipeline_key = "pipeline_dummy_key_YZA567"
+        tool_api_key = "tool_dummy_key_BCD890"
+        webui_secret_key = "webui_dummy_secret_key_EFG123"
+        zone_name = "example.com"
         EOF
                 echo "Created variables.tf with dummy values"
 
@@ -148,7 +107,7 @@ jobs:
         
     - name: Terraform Apply argocd module
       run: |
-        terraform apply -target=module.argocd -var-file=var-default.tf -auto-approve 
+        terraform apply -target=module.argocd -var-file=variables.tfvars -auto-approve 
 
     - name: Verify ArgoCD installation
       run: |
