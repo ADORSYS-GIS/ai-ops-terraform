@@ -15,3 +15,17 @@ module "custom_karpenter_ami" {
     ManagedBy = "Terraform"
   }
 }
+
+resource "aws_security_group" "default" {
+  name        = "default-ami-builder"
+  description = "Default security group for AMI builder"
+  vpc_id      = module.vpc.vpc_id
+
+  egress {
+    description = "Allow all outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"] #tfsec:ignore:aws-ec2-no-public-egress-sgr
+  }
+}
