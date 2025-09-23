@@ -267,3 +267,21 @@ variable "enable_ai_gateway_redis" {
   default     = true
 }
 
+variable "redis_auth_token" {
+  description = "The authentication token (password) for the Redis cluster."
+  type        = string
+  sensitive   = true
+}
+
+variable "redis_node_type" {
+  description = "The instance type for the Redis nodes."
+  type        = string
+  default     = "cache.t4g.small"
+}
+
+variable "redis_num_node_groups" {
+  description = "The number of node groups (shards) for the Redis replication group."
+  type        = number
+  default     = 1
+}
+
