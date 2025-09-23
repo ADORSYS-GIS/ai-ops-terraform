@@ -142,9 +142,8 @@ jobs:
       with:
         version: 'v3.13.0'
 
-    - name: Terraform Init in argocd module
+    - name: Terraform Init
       run: |
-        cd modules/argocd
         terraform init
         
     - name: Terraform Apply argocd module
