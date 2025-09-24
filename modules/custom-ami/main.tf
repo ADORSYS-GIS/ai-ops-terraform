@@ -92,3 +92,16 @@ resource "aws_imagebuilder_image_pipeline" "this" {
 
   tags = local.tags
 }
+data "aws_ami" "latest_custom_ami" {
+  most_recent = true
+  owners      = ["self"]
+
+  filter {
+    name   = "name"
+    values = ["${aws_imagebuilder_image_recipe.this.name}*"]
+  }
+
+  depends_on = [
+    aws_imagebuilder_image_pipeline.this
+  ]
+}
