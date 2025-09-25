@@ -1,21 +1,25 @@
 variable "cluster_name" {
   description = "The name of the EKS cluster."
   type        = string
+  default     = null
 }
 
 variable "cluster_endpoint" {
   description = "The endpoint for your EKS cluster's API server."
   type        = string
+  default     = null
 }
 
 variable "node_iam_role_arn" {
   description = "The ARN of the IAM role for the Karpenter nodes."
   type        = string
+  default     = null
 }
 
 variable "instance_profile" {
   description = "The instance profile for the Karpenter nodes."
   type        = string
+  default     = null
 }
 
 variable "custom_ami_id" {
