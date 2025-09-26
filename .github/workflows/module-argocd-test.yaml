@@ -1,0 +1,129 @@
+name: Deploy ArgoCD to K3s with Terraform
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: 
+      - '**'
+  workflow_dispatch:
+
+env:
+  KUBECONFIG: ${{ github.workspace }}/.kube/config
+
+jobs:
+  deploy-argocd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up K3s cluster
+      run: |
+        # Install K3s with proper configuration
+        curl -sfL https://get.k3s.io | sh -
+        
+        # Wait for K3s to be fully ready
+        sleep 30
+        
+        # Create kubeconfig directory and copy config
+        mkdir -p ${{ github.workspace }}/.kube
+        sudo cp /etc/rancher/k3s/k3s.yaml "${{ github.workspace }}/.kube/config"
+        sudo chmod 644 "${{ github.workspace }}/.kube/config"
+        
+        # Update kubeconfig to use proper server address
+        sed -i 's/127.0.0.1/localhost/g' "${{ github.workspace }}/.kube/config"
+        
+        # Set KUBECONFIG for subsequent steps
+        echo "KUBECONFIG=${{ github.workspace }}/.kube/config" >> $GITHUB_ENV
+
+    - name: Verify K3s installation and kubeconfig
+      run: |
+        # Verify kubeconfig exists and is accessible
+        echo "Checking kubeconfig file:"
+        ls -la "${{ github.workspace }}/.kube/config"
+        
+        # Verify cluster access
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Copy Kubeconfig to default location
+      run: |
+        mkdir -p ~/.kube
+        cp "${{ github.workspace }}/.kube/config" ~/.kube/config
+        chmod 644 ~/.kube/config
+        echo "Copied kubeconfig to default location"
+
+    - name: Create Terraform variables file
+      run: |
+        cat > variables.tfvars << 'EOF'
+        anthropic_key = "anthropic_dummy_key_ABC123"
+        brave_api_key = "brave_dummy_key_DEF456"
+        cert_arn = "arn:aws:acm:us-east-1:123456789012:certificate/abcdefg-hijk-lmnop-qrstuvwx"
+        fireworks_key = "fireworks_dummy_key_GHI789"
+        gemini_key = "gemini_dummy_key_JKL012"
+        litelllm_masterkey = "litelllm_dummy_masterkey_MNO345"
+        oidc_kc_client_id = "oidc_client_id_dummy_PQR678"
+        oidc_kc_client_secret = "oidc_client_secret_dummy_STU901"
+        oidc_kc_issuer_url = "https://issuer.example.com/auth/realm/dummy"
+        openai_key = "openai_dummy_key_VWX234"
+        pipeline_key = "pipeline_dummy_key_YZA567"
+        tool_api_key = "tool_dummy_key_BCD890"
+        webui_secret_key = "webui_dummy_secret_key_EFG123"
+        zone_name = "example.com"
+        EOF
+                echo "Created variables.tf with dummy values"
+
+    - name: Create provider overrides
+      run: |
+        cat > modules/argocd/providers_override.tf << 'EOF'
+        provider "kubernetes" {
+          config_path = "~/.kube/config"
+        }
+
+        provider "helm" {
+          kubernetes {
+            config_path = "~/.kube/config"
+          }
+        }
+        EOF
+                echo "Created providers_override.tf"
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.13.3
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v4
+      with:
+        version: 'v2.17.0'
+
+    - name: Terraform Init
+      run: |
+        terraform init
+        
+    - name: Terraform Apply argocd module
+      run: |
+        terraform apply -target=module.argocd -var-file=variables.tfvars -auto-approve 
+
+    - name: Verify ArgoCD installation
+      run: |
+        # Wait for ArgoCD pods to be ready
+        kubectl wait --namespace argocd \
+          --for=condition=ready pod \
+          --selector=app.kubernetes.io/name=argocd-server \
+          --timeout=300s
+        
+        # Check ArgoCD status
+        kubectl get pods -n argocd
+        kubectl get svc -n argocd
+
+    - name: Get ArgoCD admin password
+      run: |
+        # Retrieve initial admin password
+        kubectl -n argocd get secret argocd-initial-admin-secret \
+          -o jsonpath="{.data.password}" | base64 -d
+      continue-on-error: true  # This might not exist if password was changed
