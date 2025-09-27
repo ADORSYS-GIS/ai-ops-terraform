@@ -1,6 +1,6 @@
 module "karpenter" {
   source                = "terraform-aws-modules/eks/aws//modules/karpenter"
-  version               = "~> 20.0"
+  version               = "~> 21.3"
   cluster_name          = var.cluster_name
   enable_v1_permissions = true
   create_pod_identity_association = true
@@ -33,5 +33,5 @@ module "karpenter-helm" {
   ]
 
   cleanup_on_fail = false
-  wait            = false
+  wait            = true
 }

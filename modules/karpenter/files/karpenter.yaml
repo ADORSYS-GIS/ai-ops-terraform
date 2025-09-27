@@ -10,4 +10,4 @@ settings:
   defaultAMI: ${customAmiId}
 %{ endif }
 webhook:
-  enabled: false
+  enabled: true
