@@ -1,7 +1,7 @@
 module "karpenter" {
   source = "./modules/karpenter"
 
-  cluster_name       = local.eks_name
+  cluster_name       = module.eks.cluster_name
   cluster_endpoint   = module.eks.cluster_endpoint
   node_iam_role_arn  = module.eks.eks_managed_node_groups["knative-ng"].iam_role_arn
   instance_profile   = module.eks.eks_managed_node_groups["knative-ng"].instance_profile_name
