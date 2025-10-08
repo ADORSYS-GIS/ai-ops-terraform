@@ -9,10 +9,9 @@ resource "helm_release" "lmcache" {
   timeout          = 600
   create_namespace = true
 
-  set = [
-    {
-      name  = "controllers.main.replicas"
-      value = tostring(var.replica_count)
-    }
-  ]
+  set {
+    name  = "controllers.main.replicas"
+    value = tostring(var.replica_count)
+  }
+
 }
