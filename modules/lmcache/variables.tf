@@ -13,7 +13,7 @@ variable "namespace" {
 variable "chart_version" {
   description = "The version of the Helm chart to deploy"
   type        = string
-  default     = "0.1.3"
+  default     = "0.1.0"
 }
 
 variable "replica_count" {
@@ -21,6 +21,7 @@ variable "replica_count" {
   type        = number
   default     = 1
 }
+
 
 # Only include settings that your specific application needs
 variable "storage_uri" {
