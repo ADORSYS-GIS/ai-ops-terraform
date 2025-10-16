@@ -153,6 +153,36 @@ variable "knative_capacity_type" {
   description = "Knative EC2 Capacity type"
 }
 
+variable "k_server_ec2_instance_types" {
+  description = "The EC2 instance type for the k_server node group"
+  type        = list(string)
+  default     = ["t3.medium", "t3.large"]
+}
+
+variable "k_server_min_instance" {
+  description = "The minimum number of instances for the k_server node group"
+  type        = number
+  default     = 0
+}
+
+variable "k_server_max_instance" {
+  description = "The maximum number of instances for the k_server node group"
+  type        = number
+  default     = 2
+}
+
+variable "k_server_desired_instance" {
+  description = "The desired number of instances for the k_server node group"
+  type        = number
+  default     = 0
+}
+
+variable "k_server_capacity_type" {
+  type        = string
+  default     = "ON_DEMAND"
+  description = "k_server EC2 Capacity type"
+}
+
 variable "zone_name" {
   description = "The name of the Route 53 zone"
   type        = string
@@ -266,6 +296,6 @@ variable "kserve_version" {
 variable "enable_ai_gateway_redis" {
   description = "Whether to deploy Redis for the AI Gateway"
   type        = bool
-  default     = true
+  default     = false
 }
 
