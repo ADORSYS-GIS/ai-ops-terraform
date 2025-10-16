@@ -50,12 +50,30 @@ resource "aws_iam_role_policy_attachment" "image_builder_s3" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
+# EC2 Image Builder Component for custom script
+resource "aws_imagebuilder_component" "custom_script" {
+  count = var.customization_script_path != null ? 1 : 0
+
+  name     = "${local.name_prefix}-custom-script"
+  platform = "Linux"
+  version  = var.component_version
+  data     = file(var.customization_script_path)
+  tags     = local.tags
+}
+
 # EC2 Image Builder Recipe
 resource "aws_imagebuilder_image_recipe" "this" {
   name              = "${local.name_prefix}-recipe"
   parent_image      = data.aws_ami.eks_optimized.id
   version           = var.component_version
   working_directory = "/tmp"
+
+  dynamic "component" {
+    for_each = var.customization_script_path != null ? [1] : []
+    content {
+      component_arn = aws_imagebuilder_component.custom_script[0].arn
+    }
+  }
 
   component {
     component_arn = "arn:aws:imagebuilder:${data.aws_region.current.name}:aws:component/update-linux/x.x.x"
