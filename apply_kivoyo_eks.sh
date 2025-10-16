@@ -17,6 +17,20 @@ handle_error() {
     exit 1
 }
 
+# --- Pre-requisite Checks ---
+check_command() {
+    if ! command -v "$1" &> /dev/null; then
+        handle_error "$1 is not installed. Please install it to proceed."
+    fi
+}
+
+echo "--- Performing Pre-requisite Checks ---"
+check_command "terraform"
+check_command "helm"
+check_command "kubectl"
+echo "All pre-requisite commands found."
+echo ""
+
 # --- Configuration ---
 # Define the Terraform modules to be applied.
 # The order is important due to dependencies:
@@ -62,12 +76,21 @@ fi
 # --- Terraform Initialization ---
 echo "--- Initializing Terraform ---"
 echo "Running 'terraform init' to configure the backend and plugins..."
-terraform init \
-    -backend-config="bucket=kivoyo-terraform-state" \
-    -backend-config="key=kivoyo-eks.tfstate" \
-    -backend-config="region=eu-west-1" || handle_error "Terraform initialization failed."
+terraform init || handle_error "Terraform initialization failed."
 echo "Terraform initialized successfully."
 echo ""
+
+# Check for a .tfvars file
+TFVARS_FILE=""
+if [ -f "terraform.tfvars" ]; then
+    TFVARS_FILE="-var-file=terraform.tfvars"
+    echo "Using terraform.tfvars for variable input."
+elif [ -f "terraform.tfvars.json" ]; then
+    TFVARS_FILE="-var-file=terraform.tfvars.json"
+    echo "Using terraform.tfvars.json for variable input."
+else
+    echo "No terraform.tfvars or terraform.tfvars.json found. Proceeding without -var-file."
+fi
 
 # --- Terraform Plan ---
 echo "--- Generating Terraform Plan ---"
@@ -78,8 +101,8 @@ for module_name in "${MODULES_TO_APPLY[@]}"; do
     PLAN_TARGET_ARGS+=" -target=$module_name"
 done
 
-# Execute terraform plan with all targets
-terraform plan $PLAN_TARGET_ARGS || handle_error "Terraform plan failed."
+# Execute terraform plan with all targets and optional tfvars file
+terraform plan $PLAN_TARGET_ARGS $TFVARS_FILE || handle_error "Terraform plan failed."
 echo "Terraform plan generated. Please review the changes above before proceeding with the apply."
 echo ""
 
@@ -99,11 +122,30 @@ echo ""
 for module_name in "${MODULES_TO_APPLY[@]}"; do
     echo "Applying changes for module: $module_name..."
     # Removed -auto-approve to allow for manual confirmation during apply
-    terraform apply -target="$module_name" || handle_error "Terraform apply failed for $module_name."
+    terraform apply -target="$module_name" $TFVARS_FILE || handle_error "Terraform apply failed for $module_name."
     echo "Successfully applied changes for $module_name."
     echo "--------------------------------------------------"
     echo ""
 done
+
+# --- Post-apply Resource Verification ---
+echo "--- Verifying Deployed Kubernetes Resources ---"
+verify_kubernetes_resources() {
+    local namespaces=("kserve" "envoy-ai-gateway-system" "envoy-gateway-system" "redis-system" "lmcache")
+    for ns in "${namespaces[@]}"; do
+        echo "Checking Kubernetes resources in namespace: $ns"
+        echo "  Deployments:"
+        kubectl get deployments -n "$ns" || echo "    No deployments found in $ns or kubectl not configured."
+        echo "  Services:"
+        kubectl get services -n "$ns" || echo "    No services found in $ns or kubectl not configured."
+        echo "  Pods:"
+        kubectl get pods -n "$ns" || echo "    No pods found in $ns or kubectl not configured."
+        echo ""
+    done
+    echo "Verification complete. Please manually inspect logs and resource statuses for full confirmation."
+}
+
+verify_kubernetes_resources
 
 echo "--- All Specified Terraform Modules Applied Successfully ---"
 echo "Please verify the deployed resources in your AWS account and Kubernetes cluster."
