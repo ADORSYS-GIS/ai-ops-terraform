@@ -32,13 +32,13 @@ resource "kubernetes_namespace" "ns" {
   }
 }
 
-resource "kubernetes_secret" "creds-secret" {
+resource "kubernetes_secret" "creds_secret" {
   metadata {
-    name      = local.creds-secret
+    name      = local.creds_secret
     namespace = kubernetes_namespace.ns.metadata[0].name
   }
   data = {
-    MEILI_MASTER_KEY   = local.meili-master-key
+    MEILI_MASTER_KEY   = local.meili_master_key
     CREDS_KEY          = random_id.creds_key.hex
     CREDS_IV           = random_id.creds_iv.hex
     JWT_SECRET         = random_id.jwt_secret.hex
