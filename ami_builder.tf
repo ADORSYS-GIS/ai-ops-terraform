@@ -24,7 +24,7 @@ module "k_server_custom_ami" {
   base_ami_version          = "1.28" # Corresponds to an EKS version
   build_instance_type       = "t3.large"
   component_version         = "1.0.0"
-  customization_script_path = "${path.module}/files/k_server_customization_script.sh"
+  customization_script_path = "${path.module}/scripts/k_server_customization_script.sh"
 
   subnet_id          = module.vpc.private_subnets[0]
   security_group_ids = [aws_security_group.default.id]
