@@ -7,14 +7,71 @@
 #              Envoy (via AI Gateway), KServe, LMCache, and the EKS cluster itself,
 #              with a focus on custom AMIs for Karpenter and the 'k_server' node group.
 #              ArgoCD is assumed to be pre-existing and is not managed by this script.
+#
+# Usage:
+#   Interactive mode (default): ./apply_kivoyo_eks.sh
+#   Auto-approve mode:         ./apply_kivoyo_eks.sh --auto-approve
+#   Help:                      ./apply_kivoyo_eks.sh --help
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
+
+# Default values
+AUTO_APPROVE=${AUTO_APPROVE:-false}
+TF_AUTO_APPROVE=""
+
+# Function to display usage information
+show_usage() {
+    echo "Usage: $0 [OPTIONS]"
+    echo "Options:"
+    echo "  --auto-approve     Automatically approve all actions without prompting"
+    echo "  --help             Show this help message"
+    echo ""
+    echo "Environment variables:"
+    echo "  AUTO_APPROVE       Set to 'true' to auto-approve all actions"
+    exit 0
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --auto-approve)
+            AUTO_APPROVE=true
+            shift
+            ;;
+        --help)
+            show_usage
+            ;;
+        *)
+            echo "Error: Unknown option: $1"
+            show_usage
+            ;;
+    esac
+done
+
+# If auto-approve is enabled, set the Terraform auto-approve flag
+if [ "$AUTO_APPROVE" = true ]; then
+    TF_AUTO_APPROVE="-auto-approve"
+fi
 
 # Function to display error messages and exit
 handle_error() {
     echo "ERROR: $1" >&2
     exit 1
+}
+
+# Function to prompt for confirmation
+confirm() {
+    if [ "$AUTO_APPROVE" = true ]; then
+        echo "Auto-approval enabled. Proceeding with: $1"
+        return 0
+    fi
+
+    read -p "$1 (yes/no): " CONFIRM
+    if [[ "$CONFIRM" != "yes" ]]; then
+        echo "Operation cancelled by user."
+        exit 0
+    fi
 }
 
 # --- Pre-requisite Checks ---
@@ -67,11 +124,8 @@ echo "their outputs (AMI IDs) are available before the EKS module attempts to us
 echo "for node group provisioning."
 echo ""
 
-read -p "This script will initialize Terraform, generate a plan, and then apply changes to the Kivoyo EKS Cluster. Do you want to proceed? (yes/no): " CONFIRM
-if [[ "$CONFIRM" != "yes" ]]; then
-    echo "Operation cancelled by user."
-    exit 0
-fi
+# Initial confirmation
+confirm "This script will initialize Terraform, generate a plan, and then apply changes to the Kivoyo EKS Cluster. Do you want to proceed?"
 
 # --- Terraform Initialization ---
 echo "--- Initializing Terraform ---"
@@ -106,23 +160,23 @@ terraform plan $PLAN_TARGET_ARGS $TFVARS_FILE || handle_error "Terraform plan fa
 echo "Terraform plan generated. Please review the changes above before proceeding with the apply."
 echo ""
 
-read -p "Do you want to apply these changes? (yes/no): " APPLY_CONFIRM
-if [[ "$APPLY_CONFIRM" != "yes" ]]; then
-    echo "Apply operation cancelled by user."
-    exit 0
-fi
+# Apply confirmation
+confirm "Do you want to apply these changes?"
 
 # --- Selective Terraform Apply ---
 echo "--- Starting Selective Terraform Apply ---"
 echo "Applying changes for each specified module sequentially."
 echo "Each module will be applied individually using the '-target' flag."
-echo "You will be prompted for confirmation for each module unless '-auto-approve' is used (which is currently disabled)."
+if [ "$AUTO_APPROVE" = true ]; then
+    echo "Auto-approval is enabled. All changes will be applied automatically."
+else
+    echo "You will be prompted for confirmation for each module unless '--auto-approve' is used."
+fi
 echo ""
 
 for module_name in "${MODULES_TO_APPLY[@]}"; do
     echo "Applying changes for module: $module_name..."
-    # Removed -auto-approve to allow for manual confirmation during apply
-    terraform apply -target="$module_name" $TFVARS_FILE || handle_error "Terraform apply failed for $module_name."
+    terraform apply $TF_AUTO_APPROVE -target="$module_name" $TFVARS_FILE || handle_error "Terraform apply failed for $module_name."
     echo "Successfully applied changes for $module_name."
     echo "--------------------------------------------------"
     echo ""
