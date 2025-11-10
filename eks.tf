@@ -73,6 +73,29 @@ module "eks" {
         }
       )
     }
+    k_server_ng = {
+      use_custom_launch_template = true
+      name                       = "k-server"
+      min_size                   = var.k_server_min_instance
+      max_size                   = var.k_server_max_instance
+      desired_size               = var.k_server_desired_instance
+      instance_types             = var.k_server_ec2_instance_types
+      capacity_type              = var.k_server_capacity_type
+      disk_size                  = 100
+      ami_id                     = module.k_server_custom_ami.ami_id
+      iam_role_additional_policies = {
+        ebs = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+      }
+      labels = {
+        k-server-node : "true"
+      }
+      tags = merge(
+        local.tags,
+        {
+          "k-server-node" = "true",
+        }
+      )
+    }
   }
 
   node_security_group_name = "sg_${local.eks_name}"

@@ -8,6 +8,11 @@ output "kserve_namespace" {
   value = module.kserve.kserve_namespace
 }
 
+output "k_server_ami_id" {
+  description = "The ID of the custom AMI for the k_server node group."
+  value       = module.k_server_custom_ami.ami_id
+}
+
 # AI Gateway module outputs
 output "ai_gateway_namespace" {
   value = module.ai_gateway.ai_gateway_namespace
@@ -45,3 +50,4 @@ output "s3_bucket_credentials" {
   }
   sensitive = true
 }
+
